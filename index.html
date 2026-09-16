@@ -3,181 +3,274 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
     <title>Salzburg Foto-Tour</title>
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
     <style>
+        * {
+            box-sizing: border-box;
+        }
+
         body {
             margin: 0;
-            padding: 30px;
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-            background: #f5f5f5;
+            background: #f4f4f4;
             color: #111;
         }
 
-        .box {
-            max-width: 600px;
-            margin: 60px auto;
-            padding: 35px;
-            background: white;
-            border-radius: 18px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.12);
+        header {
+            background: #111;
+            color: white;
+            padding: 24px 20px;
             text-align: center;
         }
 
-        h1 {
-            font-size: 32px;
-            margin-bottom: 30px;
+        header h1 {
+            margin: 0;
+            font-size: 28px;
+        }
+
+        header p {
+            margin: 8px 0 0;
+            opacity: 0.75;
+        }
+
+        .container {
+            max-width: 700px;
+            margin: 0 auto;
+            padding: 20px;
         }
 
         #status {
-            font-size: 20px;
-            margin: 25px 0;
+            text-align: center;
+            margin-bottom: 20px;
+            font-size: 15px;
         }
 
-        #details {
-            margin-top: 25px;
+        .station {
+            background: white;
+            border-radius: 18px;
             padding: 20px;
-            border-radius: 12px;
-            background: #f0f0f0;
-            text-align: left;
-            word-break: break-word;
+            margin-bottom: 16px;
+            box-shadow: 0 3px 14px rgba(0,0,0,0.08);
         }
 
-        .success {
-            color: #16803c;
+        .nummer {
+            font-size: 14px;
+            font-weight: 700;
+            color: #777;
+            margin-bottom: 6px;
+        }
+
+        .station h2 {
+            margin: 0 0 12px;
+            font-size: 23px;
+        }
+
+        .beschreibung {
+            line-height: 1.55;
+            margin-bottom: 14px;
+        }
+
+        .besonderheit {
+            background: #f1f1f1;
+            border-radius: 12px;
+            padding: 12px;
+            margin-bottom: 12px;
+        }
+
+        .fototipp {
+            border-left: 4px solid #111;
+            padding-left: 12px;
+            line-height: 1.5;
+        }
+
+        .meta {
+            margin-top: 16px;
+            color: #666;
+            font-size: 14px;
+        }
+
+        .gps {
+            margin-top: 6px;
+            font-size: 12px;
+            color: #999;
         }
 
         .error {
             color: #c62828;
         }
 
-        .small {
-            font-size: 14px;
-            color: #666;
-            margin-top: 25px;
+        .success {
+            color: #16803c;
         }
     </style>
 </head>
 
 <body>
 
-    <div class="box">
+<header>
+    <h1>📷 Salzburg Foto-Tour</h1>
+    <p>Freitag · Altstadt & Mönchsberg</p>
+</header>
 
-        <h1>📷 Salzburg Foto-Tour</h1>
+<div class="container">
 
-        <div id="status">
-            🔄 Verbindung zur Datenbank wird geprüft …
-        </div>
-
-        <div id="details">
-            Bitte warten …
-        </div>
-
-        <div class="small">
-            Verbindungstest GitHub Pages ↔ Supabase
-        </div>
-
+    <div id="status">
+        🔄 Stationen werden geladen …
     </div>
 
-    <script>
+    <div id="stationen"></div>
 
-        // ==========================================
-        // SUPABASE VERBINDUNG
-        // ==========================================
+</div>
 
-        const SUPABASE_URL =
-            "https://nlwspalttrhebrpwqcpb.supabase.co";
+<script>
+    const SUPABASE_URL =
+        "https://nlwspalttrhebrpwqcpb.supabase.co";
 
-        const SUPABASE_PUBLISHABLE_KEY =
-            "sb_publishable_eRAkjZZrjGM3PJybVtDUGw_vYgwd5As";
+    const SUPABASE_PUBLISHABLE_KEY =
+        "sb_publishable_eRAkjZZrjGM3PJybVtDUGw_vYgwd5As";
 
-        const supabaseClient = window.supabase.createClient(
-            SUPABASE_URL,
-            SUPABASE_PUBLISHABLE_KEY
-        );
+    const supabaseClient = window.supabase.createClient(
+        SUPABASE_URL,
+        SUPABASE_PUBLISHABLE_KEY
+    );
 
+    async function stationenLaden() {
 
-        // ==========================================
-        // DATENBANK TESTEN
-        // ==========================================
+        const status = document.getElementById("status");
+        const container = document.getElementById("stationen");
 
-        async function datenbankTesten() {
+        try {
 
-            const status = document.getElementById("status");
-            const details = document.getElementById("details");
+            const { data, error } = await supabaseClient
+                .from("stationen")
+                .select(`
+                    id,
+                    tag,
+                    nummer,
+                    titel,
+                    beschreibung,
+                    besonderheit,
+                    fototipp,
+                    latitude,
+                    longitude,
+                    aufenthalt_minuten,
+                    aktiv
+                `)
+                .eq("tag", "Freitag")
+                .eq("aktiv", true)
+                .order("nummer", { ascending: true });
 
-            try {
-
-                const { count, error } = await supabaseClient
-                    .from("stationen")
-                    .select("id", {
-                        count: "exact",
-                        head: true
-                    });
-
-
-                if (error) {
-
-                    status.className = "error";
-                    status.innerHTML = "🔴 Datenbankfehler";
-
-                    details.innerHTML = `
-                        <strong>Fehlermeldung:</strong><br><br>
-                        ${error.message || "Keine Fehlermeldung"}<br><br>
-
-                        <strong>Fehlercode:</strong><br>
-                        ${error.code || "Kein Code"}<br><br>
-
-                        <strong>Details:</strong><br>
-                        ${error.details || "Keine Details"}<br><br>
-
-                        <strong>Hinweis:</strong><br>
-                        Die Webseite erreicht Supabase,
-                        aber die Abfrage der Tabelle
-                        „stationen“ wurde abgelehnt.
-                    `;
-
-                    console.error("Supabase Fehler:", error);
-
-                    return;
-                }
-
-
-                // ==========================================
-                // ERFOLGREICH
-                // ==========================================
-
-                status.className = "success";
-                status.innerHTML =
-                    "🟢 Verbindung zur Datenbank hergestellt";
-
-                details.innerHTML = `
-                    <strong>Supabase:</strong> OK<br><br>
-                    <strong>Tabelle:</strong> stationen<br><br>
-                    <strong>Stationen:</strong> ${count ?? 0}
-                `;
-
-            } catch (fehler) {
-
-                status.className = "error";
-                status.innerHTML = "🔴 Verbindungsfehler";
-
-                details.innerHTML = `
-                    <strong>Technischer Fehler:</strong><br><br>
-                    ${fehler.message || fehler}
-                `;
-
-                console.error("Technischer Fehler:", fehler);
+            if (error) {
+                throw error;
             }
+
+            status.className = "success";
+            status.innerHTML =
+                `🟢 ${data.length} Stationen geladen`;
+
+            if (!data || data.length === 0) {
+                container.innerHTML = `
+                    <div class="station">
+                        <h2>Keine Stationen gefunden</h2>
+                        <p>Für Freitag sind derzeit keine aktiven Stationen vorhanden.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = "";
+
+            data.forEach(station => {
+
+                const element = document.createElement("div");
+                element.className = "station";
+
+                element.innerHTML = `
+
+                    <div class="nummer">
+                        STATION ${station.nummer}
+                    </div>
+
+                    <h2>
+                        ${station.titel || ""}
+                    </h2>
+
+                    ${
+                        station.beschreibung
+                        ? `
+                            <div class="beschreibung">
+                                ${station.beschreibung}
+                            </div>
+                        `
+                        : ""
+                    }
+
+                    ${
+                        station.besonderheit
+                        ? `
+                            <div class="besonderheit">
+                                <strong>⭐ Besonderheit</strong><br>
+                                ${station.besonderheit}
+                            </div>
+                        `
+                        : ""
+                    }
+
+                    ${
+                        station.fototipp
+                        ? `
+                            <div class="fototipp">
+                                <strong>📷 Fototipp</strong><br>
+                                ${station.fototipp}
+                            </div>
+                        `
+                        : ""
+                    }
+
+                    <div class="meta">
+                        ⏱ Aufenthalt: ${station.aufenthalt_minuten ?? "-"} Minuten
+                    </div>
+
+                    ${
+                        station.latitude !== null &&
+                        station.longitude !== null
+                        ? `
+                            <div class="gps">
+                                📍 ${station.latitude},
+                                ${station.longitude}
+                            </div>
+                        `
+                        : ""
+                    }
+
+                `;
+
+                container.appendChild(element);
+            });
+
+        } catch (error) {
+
+            console.error("Supabase Fehler:", error);
+
+            status.className = "error";
+            status.innerHTML =
+                "🔴 Fehler beim Laden der Stationen";
+
+            container.innerHTML = `
+                <div class="station">
+                    <h2>Datenbankfehler</h2>
+                    <p>${error.message || "Unbekannter Fehler"}</p>
+                </div>
+            `;
         }
+    }
 
-
-        // Test starten
-        datenbankTesten();
-
-    </script>
+    stationenLaden();
+</script>
 
 </body>
 </html>
