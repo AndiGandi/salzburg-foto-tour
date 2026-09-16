@@ -10,76 +10,175 @@
 
     <style>
         body {
-            font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+            margin: 0;
             padding: 30px;
-            text-align: center;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
             background: #f5f5f5;
+            color: #111;
         }
 
         .box {
-            max-width: 500px;
-            margin: 40px auto;
-            padding: 30px;
+            max-width: 600px;
+            margin: 60px auto;
+            padding: 35px;
             background: white;
-            border-radius: 16px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            border-radius: 18px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.12);
+            text-align: center;
         }
 
         h1 {
+            font-size: 32px;
             margin-bottom: 30px;
         }
 
         #status {
-            font-size: 18px;
-            margin: 20px 0;
+            font-size: 20px;
+            margin: 25px 0;
+        }
+
+        #details {
+            margin-top: 25px;
+            padding: 20px;
+            border-radius: 12px;
+            background: #f0f0f0;
+            text-align: left;
+            word-break: break-word;
+        }
+
+        .success {
+            color: #16803c;
+        }
+
+        .error {
+            color: #c62828;
+        }
+
+        .small {
+            font-size: 14px;
+            color: #666;
+            margin-top: 25px;
         }
     </style>
 </head>
 
 <body>
 
-<div class="box">
-    <h1>📷 Salzburg Foto-Tour</h1>
+    <div class="box">
 
-    <div id="status">
-        🔄 Verbindung zur Datenbank wird geprüft …
+        <h1>📷 Salzburg Foto-Tour</h1>
+
+        <div id="status">
+            🔄 Verbindung zur Datenbank wird geprüft …
+        </div>
+
+        <div id="details">
+            Bitte warten …
+        </div>
+
+        <div class="small">
+            Verbindungstest GitHub Pages ↔ Supabase
+        </div>
+
     </div>
 
-    <div id="stationen"></div>
-</div>
+    <script>
 
-<script>
-    const SUPABASE_URL = "https://nlwspalttrhebrpwqcpb.supabase.co";
+        // ==========================================
+        // SUPABASE VERBINDUNG
+        // ==========================================
 
-    const SUPABASE_PUBLISHABLE_KEY =
-        "sb_publishable_eRAkjZZrjGM3PJybVtDUGw_vYgwd5As";
+        const SUPABASE_URL =
+            "https://nlwspalttrhebrpwqcpb.supabase.co";
 
-    const supabaseClient = window.supabase.createClient(
-        SUPABASE_URL,
-        SUPABASE_PUBLISHABLE_KEY
-    );
+        const SUPABASE_PUBLISHABLE_KEY =
+            "sb_publishable_eRAkjZZrjGM3PJybVtDUGw_vYgwd5As";
 
-    async function testen() {
+        const supabaseClient = window.supabase.createClient(
+            SUPABASE_URL,
+            SUPABASE_PUBLISHABLE_KEY
+        );
 
-        const status = document.getElementById("status");
-        const stationen = document.getElementById("stationen");
 
-        const { count, error } = await supabaseClient
-            .from("stationen")
-            .select("id", { count: "exact", head: true });
+        // ==========================================
+        // DATENBANK TESTEN
+        // ==========================================
 
-        if (error) {
-            status.innerHTML = "🔴 Datenbankfehler";
-            stationen.innerHTML = error.message;
-            return;
+        async function datenbankTesten() {
+
+            const status = document.getElementById("status");
+            const details = document.getElementById("details");
+
+            try {
+
+                const { count, error } = await supabaseClient
+                    .from("stationen")
+                    .select("id", {
+                        count: "exact",
+                        head: true
+                    });
+
+
+                if (error) {
+
+                    status.className = "error";
+                    status.innerHTML = "🔴 Datenbankfehler";
+
+                    details.innerHTML = `
+                        <strong>Fehlermeldung:</strong><br><br>
+                        ${error.message || "Keine Fehlermeldung"}<br><br>
+
+                        <strong>Fehlercode:</strong><br>
+                        ${error.code || "Kein Code"}<br><br>
+
+                        <strong>Details:</strong><br>
+                        ${error.details || "Keine Details"}<br><br>
+
+                        <strong>Hinweis:</strong><br>
+                        Die Webseite erreicht Supabase,
+                        aber die Abfrage der Tabelle
+                        „stationen“ wurde abgelehnt.
+                    `;
+
+                    console.error("Supabase Fehler:", error);
+
+                    return;
+                }
+
+
+                // ==========================================
+                // ERFOLGREICH
+                // ==========================================
+
+                status.className = "success";
+                status.innerHTML =
+                    "🟢 Verbindung zur Datenbank hergestellt";
+
+                details.innerHTML = `
+                    <strong>Supabase:</strong> OK<br><br>
+                    <strong>Tabelle:</strong> stationen<br><br>
+                    <strong>Stationen:</strong> ${count ?? 0}
+                `;
+
+            } catch (fehler) {
+
+                status.className = "error";
+                status.innerHTML = "🔴 Verbindungsfehler";
+
+                details.innerHTML = `
+                    <strong>Technischer Fehler:</strong><br><br>
+                    ${fehler.message || fehler}
+                `;
+
+                console.error("Technischer Fehler:", fehler);
+            }
         }
 
-        status.innerHTML = "🟢 Verbindung zur Datenbank hergestellt";
-        stationen.innerHTML = "📍 Stationen: " + count;
-    }
 
-    testen();
-</script>
+        // Test starten
+        datenbankTesten();
+
+    </script>
 
 </body>
 </html>
