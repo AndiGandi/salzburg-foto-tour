@@ -8,6 +8,15 @@
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
+    <link
+        rel="stylesheet"
+        href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+    />
+
+    <script
+        src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js">
+    </script>
+
     <style>
         * {
             box-sizing: border-box;
@@ -40,13 +49,22 @@
         .container {
             max-width: 700px;
             margin: 0 auto;
-            padding: 20px;
+            padding: 16px;
         }
 
         #status {
             text-align: center;
-            margin-bottom: 20px;
+            margin-bottom: 16px;
             font-size: 15px;
+        }
+
+        #karte {
+            width: 100%;
+            height: 420px;
+            border-radius: 18px;
+            overflow: hidden;
+            margin-bottom: 20px;
+            box-shadow: 0 3px 14px rgba(0,0,0,0.12);
         }
 
         .station {
@@ -79,6 +97,7 @@
             border-radius: 12px;
             padding: 12px;
             margin-bottom: 12px;
+            line-height: 1.5;
         }
 
         .fototipp {
@@ -93,18 +112,20 @@
             font-size: 14px;
         }
 
-        .gps {
-            margin-top: 6px;
-            font-size: 12px;
-            color: #999;
-        }
-
         .error {
             color: #c62828;
         }
 
         .success {
             color: #16803c;
+        }
+
+        .leaflet-popup-content {
+            font-size: 15px;
+        }
+
+        .leaflet-popup-content strong {
+            font-size: 16px;
         }
     </style>
 </head>
@@ -122,11 +143,14 @@
         🔄 Stationen werden geladen …
     </div>
 
+    <div id="karte"></div>
+
     <div id="stationen"></div>
 
 </div>
 
 <script>
+
     const SUPABASE_URL =
         "https://nlwspalttrhebrpwqcpb.supabase.co";
 
@@ -138,138 +162,253 @@
         SUPABASE_PUBLISHABLE_KEY
     );
 
+
+    let karte = null;
+    let stationsMarker = [];
+    let stationsDaten = [];
+
+
+    function karteErstellen() {
+
+        karte = L.map("karte");
+
+        L.tileLayer(
+            "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+            {
+                maxZoom: 19,
+                attribution: '&copy; OpenStreetMap-Mitwirkende'
+            }
+        ).addTo(karte);
+    }
+
+
+    function markerErstellen(stationen) {
+
+        stationsMarker = [];
+
+        const koordinaten = [];
+
+
+        stationen.forEach(station => {
+
+            if (
+                station.latitude === null ||
+                station.longitude === null
+            ) {
+                return;
+            }
+
+
+            const position = [
+                station.latitude,
+                station.longitude
+            ];
+
+
+            koordinaten.push(position);
+
+
+            const marker = L.marker(position)
+                .addTo(karte)
+                .bindPopup(`
+                    <strong>
+                        ${station.nummer}. ${station.titel}
+                    </strong>
+                    <br>
+                    ${station.aufenthalt_minuten ?? "-"} Minuten
+                `);
+
+
+            stationsMarker.push(marker);
+        });
+
+
+        if (koordinaten.length > 0) {
+
+            const grenzen = L.latLngBounds(koordinaten);
+
+            karte.fitBounds(
+                grenzen,
+                {
+                    padding: [25, 25]
+                }
+            );
+        }
+    }
+
+
+    function stationenAnzeigen(stationen) {
+
+        const container =
+            document.getElementById("stationen");
+
+        container.innerHTML = "";
+
+
+        stationen.forEach(station => {
+
+            const element =
+                document.createElement("div");
+
+            element.className = "station";
+
+
+            element.innerHTML = `
+
+                <div class="nummer">
+                    STATION ${station.nummer}
+                </div>
+
+                <h2>
+                    ${station.titel || ""}
+                </h2>
+
+                ${
+                    station.beschreibung
+                    ? `
+                        <div class="beschreibung">
+                            ${station.beschreibung}
+                        </div>
+                    `
+                    : ""
+                }
+
+                ${
+                    station.besonderheit
+                    ? `
+                        <div class="besonderheit">
+                            <strong>⭐ Besonderheit</strong><br>
+                            ${station.besonderheit}
+                        </div>
+                    `
+                    : ""
+                }
+
+                ${
+                    station.fototipp
+                    ? `
+                        <div class="fototipp">
+                            <strong>📷 Fototipp</strong><br>
+                            ${station.fototipp}
+                        </div>
+                    `
+                    : ""
+                }
+
+                <div class="meta">
+                    ⏱ Aufenthalt:
+                    ${station.aufenthalt_minuten ?? "-"} Minuten
+                </div>
+
+            `;
+
+
+            element.addEventListener(
+                "click",
+                () => {
+
+                    const marker =
+                        stationsMarker[station.nummer - 1];
+
+                    if (marker) {
+
+                        karte.setView(
+                            marker.getLatLng(),
+                            18
+                        );
+
+                        marker.openPopup();
+                    }
+
+                    window.scrollTo({
+                        top: 0,
+                        behavior: "smooth"
+                    });
+                }
+            );
+
+
+            container.appendChild(element);
+        });
+    }
+
+
     async function stationenLaden() {
 
-        const status = document.getElementById("status");
-        const container = document.getElementById("stationen");
+        const status =
+            document.getElementById("status");
+
 
         try {
 
-            const { data, error } = await supabaseClient
-                .from("stationen")
-                .select(`
-                    id,
-                    tag,
-                    nummer,
-                    titel,
-                    beschreibung,
-                    besonderheit,
-                    fototipp,
-                    latitude,
-                    longitude,
-                    aufenthalt_minuten,
-                    aktiv
-                `)
-                .eq("tag", "Freitag")
-                .eq("aktiv", true)
-                .order("nummer", { ascending: true });
+            const { data, error } =
+                await supabaseClient
+                    .from("stationen")
+                    .select(`
+                        id,
+                        tag,
+                        nummer,
+                        titel,
+                        beschreibung,
+                        besonderheit,
+                        fototipp,
+                        latitude,
+                        longitude,
+                        aufenthalt_minuten,
+                        aktiv
+                    `)
+                    .eq("tag", "Freitag")
+                    .eq("aktiv", true)
+                    .order("nummer", {
+                        ascending: true
+                    });
+
 
             if (error) {
                 throw error;
             }
 
+
+            stationsDaten = data || [];
+
+
             status.className = "success";
+
             status.innerHTML =
-                `🟢 ${data.length} Stationen geladen`;
+                `🟢 ${stationsDaten.length} Stationen geladen`;
 
-            if (!data || data.length === 0) {
-                container.innerHTML = `
-                    <div class="station">
-                        <h2>Keine Stationen gefunden</h2>
-                        <p>Für Freitag sind derzeit keine aktiven Stationen vorhanden.</p>
-                    </div>
-                `;
-                return;
-            }
 
-            container.innerHTML = "";
+            stationenAnzeigen(
+                stationsDaten
+            );
 
-            data.forEach(station => {
 
-                const element = document.createElement("div");
-                element.className = "station";
+            markerErstellen(
+                stationsDaten
+            );
 
-                element.innerHTML = `
+        }
 
-                    <div class="nummer">
-                        STATION ${station.nummer}
-                    </div>
+        catch (error) {
 
-                    <h2>
-                        ${station.titel || ""}
-                    </h2>
+            console.error(
+                "Supabase Fehler:",
+                error
+            );
 
-                    ${
-                        station.beschreibung
-                        ? `
-                            <div class="beschreibung">
-                                ${station.beschreibung}
-                            </div>
-                        `
-                        : ""
-                    }
-
-                    ${
-                        station.besonderheit
-                        ? `
-                            <div class="besonderheit">
-                                <strong>⭐ Besonderheit</strong><br>
-                                ${station.besonderheit}
-                            </div>
-                        `
-                        : ""
-                    }
-
-                    ${
-                        station.fototipp
-                        ? `
-                            <div class="fototipp">
-                                <strong>📷 Fototipp</strong><br>
-                                ${station.fototipp}
-                            </div>
-                        `
-                        : ""
-                    }
-
-                    <div class="meta">
-                        ⏱ Aufenthalt: ${station.aufenthalt_minuten ?? "-"} Minuten
-                    </div>
-
-                    ${
-                        station.latitude !== null &&
-                        station.longitude !== null
-                        ? `
-                            <div class="gps">
-                                📍 ${station.latitude},
-                                ${station.longitude}
-                            </div>
-                        `
-                        : ""
-                    }
-
-                `;
-
-                container.appendChild(element);
-            });
-
-        } catch (error) {
-
-            console.error("Supabase Fehler:", error);
 
             status.className = "error";
+
             status.innerHTML =
                 "🔴 Fehler beim Laden der Stationen";
-
-            container.innerHTML = `
-                <div class="station">
-                    <h2>Datenbankfehler</h2>
-                    <p>${error.message || "Unbekannter Fehler"}</p>
-                </div>
-            `;
         }
     }
 
+
+    karteErstellen();
+
     stationenLaden();
+
 </script>
 
 </body>
