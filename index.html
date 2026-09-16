@@ -7,7 +7,7 @@
 <title>Salzburg Foto-Tour</title>
 
 <link rel="stylesheet"
-      href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
 
 <style>
 * {
@@ -160,25 +160,25 @@ button:active {
 <body>
 
 <header>
-    <h1>📷 Salzburg Foto-Tour</h1>
-    <p>Altstadt &amp; Mönchsberg</p>
+<h1>📷 Salzburg Foto-Tour</h1>
+<p>Altstadt &amp; Mönchsberg</p>
 </header>
 
 <div id="status">
-    🔄 Verbindung wird hergestellt …
+🔄 Verbindung wird hergestellt …
 </div>
 
 <div id="map"></div>
 
 <div class="controls">
-    <button onclick="tourStarten()">📍 Tour starten</button>
-    <button onclick="testmodusUmschalten()">🧪 Testmodus</button>
+<button onclick="tourStarten()">📍 Tour starten</button>
+<button onclick="testmodusUmschalten()">🧪 Testmodus</button>
 </div>
 
 <div id="testmodus">
-    <select id="stationSelect" onchange="testStation()">
-        <option value="">Station auswählen …</option>
-    </select>
+<select id="stationSelect" onchange="testStation()">
+<option value="">Station auswählen …</option>
+</select>
 </div>
 
 <div id="stationen"></div>
@@ -193,16 +193,16 @@ button:active {
    ========================================================= */
 
 const SUPABASE_URL =
-    "https://nlwspalttrhebrpwqcpb.supabase.co";
+"https://nlwspalttrhebrpwqcpb.supabase.co";
 
 const SUPABASE_KEY =
-    "sb_publishable_eRAkjZZrjGM3PJybVtDUGw_vYgwd5As";
+"sb_publishable_eRAkjZZrjGM3PJybVtDUGw_vYgwd5As";
 
 const supabaseClient =
-    supabase.createClient(
-        SUPABASE_URL,
-        SUPABASE_KEY
-    );
+supabase.createClient(
+    SUPABASE_URL,
+    SUPABASE_KEY
+);
 
 
 /* =========================================================
@@ -210,17 +210,17 @@ const supabaseClient =
    ========================================================= */
 
 const map =
-    L.map("map").setView(
-        [47.7985, 13.0435],
-        15
-    );
+L.map("map").setView(
+    [47.7985, 13.0435],
+    15
+);
 
 L.tileLayer(
     "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
     {
         maxZoom: 19,
         attribution:
-            "&copy; OpenStreetMap-Mitwirkende"
+        "&copy; OpenStreetMap-Mitwirkende"
     }
 ).addTo(map);
 
@@ -237,74 +237,18 @@ let gpsWatch = null;
 
 
 /* =========================================================
-   SPRECHTEXT STATION 1
-   ========================================================= */
-
-const sprechtexte = {
-
-    1:
-    "Willkommen zur Salzburg Foto-Tour. " +
-    "Wir starten hier beim Neutor, dem historischen Durchgang durch den Mönchsberg. " +
-    "Das Neutor wird auch Sigmundstor genannt und verbindet die Salzburger Altstadt mit dem Stadtteil Riedenburg. " +
-    "Der Tunnel wurde im 18. Jahrhundert durch den Felsen des Mönchsbergs gebaut und war damals eine bedeutende technische Leistung. " +
-    "Schaut euch hier einmal die Verbindung von Straße, Fels und historischem Stadtraum an. " +
-    "Für ein Foto lohnt sich besonders der Blick entlang des Tunnels. " +
-    "Versucht dabei, die Felswand als natürlichen Rahmen zu verwenden. " +
-    "Von hier beginnt unser Weg hinein in die Salzburger Altstadt."
-};
-
-
-/* =========================================================
-   SPRECHEN
-   ========================================================= */
-
-function sprechen(nummer) {
-
-    if (!("speechSynthesis" in window)) {
-
-        alert(
-            "Die Sprachwiedergabe wird auf diesem Gerät nicht unterstützt."
-        );
-
-        return;
-    }
-
-    window.speechSynthesis.cancel();
-
-    const text =
-        sprechtexte[nummer];
-
-    if (!text) {
-        return;
-    }
-
-    const aussage =
-        new SpeechSynthesisUtterance(text);
-
-    aussage.lang = "de-DE";
-    aussage.rate = 0.9;
-    aussage.pitch = 1.0;
-    aussage.volume = 1.0;
-
-    window.speechSynthesis.speak(
-        aussage
-    );
-}
-
-
-/* =========================================================
    STATUS
    ========================================================= */
 
 function status(text, fehler = false) {
 
     const element =
-        document.getElementById("status");
+    document.getElementById("status");
 
     element.innerHTML = text;
 
     element.className =
-        fehler ? "fehler" : "ok";
+    fehler ? "fehler" : "ok";
 }
 
 
@@ -317,70 +261,66 @@ async function routeLaden() {
     try {
 
         const response =
-            await fetch(
-                "Salzburg.gpx",
-                {
-                    cache: "no-cache"
-                }
-            );
+        await fetch(
+            "Salzburg.gpx",
+            {
+                cache: "no-cache"
+            }
+        );
 
         if (!response.ok) {
-
             throw new Error(
                 "Salzburg.gpx konnte nicht geladen werden."
             );
         }
 
         const gpxText =
-            await response.text();
+        await response.text();
 
         const parser =
-            new DOMParser();
+        new DOMParser();
 
         const xml =
-            parser.parseFromString(
-                gpxText,
-                "application/xml"
-            );
+        parser.parseFromString(
+            gpxText,
+            "application/xml"
+        );
 
         const trackpunkte =
-            Array.from(
-                xml.querySelectorAll("trkpt")
-            );
+        Array.from(
+            xml.querySelectorAll("trkpt")
+        );
 
         if (trackpunkte.length === 0) {
-
             throw new Error(
                 "Keine GPX-Trackpunkte gefunden."
             );
         }
 
         const koordinaten =
-            trackpunkte.map(punkt => {
+        trackpunkte.map(punkt => {
 
-                const lat =
-                    parseFloat(
-                        punkt.getAttribute("lat")
-                    );
+            const lat =
+            parseFloat(
+                punkt.getAttribute("lat")
+            );
 
-                const lon =
-                    parseFloat(
-                        punkt.getAttribute("lon")
-                    );
+            const lon =
+            parseFloat(
+                punkt.getAttribute("lon")
+            );
 
-                return [lat, lon];
-            });
-
+            return [lat, lon];
+        });
 
         routeLayer =
-            L.polyline(
-                koordinaten,
-                {
-                    weight: 5,
-                    opacity: 0.85
-                }
-            ).addTo(map);
-
+        L.polyline(
+            koordinaten,
+            {
+                weight: 5,
+                opacity: 0.85
+            }
+        ).addTo(map);
 
         map.fitBounds(
             routeLayer.getBounds(),
@@ -416,39 +356,33 @@ async function stationenLaden() {
             data,
             error
         } =
-            await supabaseClient
-                .from("stationen")
-                .select("*")
-                .eq("aktiv", true)
-                .gte("nummer", 1)
-                .lte("nummer", 14)
-                .order(
-                    "nummer",
-                    {
-                        ascending: true
-                    }
-                );
-
+        await supabaseClient
+        .from("stationen")
+        .select("*")
+        .eq("aktiv", true)
+        .gte("nummer", 1)
+        .lte("nummer", 14)
+        .order(
+            "nummer",
+            {
+                ascending: true
+            }
+        );
 
         if (error) {
             throw error;
         }
 
-
         stationen =
-            data || [];
-
+        data || [];
 
         status(
             "🟢 Verbindung zur Datenbank hergestellt · Supabase: OK · Tabelle: stationen · Stationen: "
             + stationen.length
         );
 
-
         stationenAufKarte();
-
         stationenAnzeigen();
-
         testmodusAufbauen();
 
     } catch (error) {
@@ -475,11 +409,10 @@ function stationenAufKarte() {
 
     stationMarker.forEach(
         marker =>
-            map.removeLayer(marker)
+        map.removeLayer(marker)
     );
 
     stationMarker = [];
-
 
     stationen.forEach(station => {
 
@@ -490,50 +423,35 @@ function stationenAufKarte() {
             return;
         }
 
-
         const lat =
-            Number(station.latitude);
+        Number(station.latitude);
 
         const lon =
-            Number(station.longitude);
-
+        Number(station.longitude);
 
         const marker =
-            L.marker(
-                [lat, lon]
-            ).addTo(map);
-
+        L.marker(
+            [lat, lon]
+        ).addTo(map);
 
         let popup =
-            "<strong>"
-            + station.nummer
-            + ". "
-            + escapeHtml(
-                station.titel
-            )
-            + "</strong>";
+        "<strong>"
+        + station.nummer
+        + ". "
+        + escapeHtml(station.titel)
+        + "</strong>";
 
-
-        if (
-            station.aufenthalt_minuten
-        ) {
+        if (station.aufenthalt_minuten) {
 
             popup +=
-                "<br>⏱ "
-                + station.aufenthalt_minuten
-                + " Minuten";
+            "<br>⏱ "
+            + station.aufenthalt_minuten
+            + " Minuten";
         }
 
+        marker.bindPopup(popup);
 
-        marker.bindPopup(
-            popup
-        );
-
-
-        stationMarker.push(
-            marker
-        );
-
+        stationMarker.push(marker);
     });
 }
 
@@ -545,124 +463,93 @@ function stationenAufKarte() {
 function stationenAnzeigen() {
 
     const container =
-        document.getElementById(
-            "stationen"
-        );
+    document.getElementById("stationen");
 
     container.innerHTML = "";
-
 
     stationen.forEach(station => {
 
         const div =
-            document.createElement(
-                "div"
-            );
+        document.createElement("div");
 
-        div.className =
-            "station";
-
+        div.className = "station";
 
         let html = "";
 
-
         html +=
-            "<h2>"
-            + "<span class='nummer'>"
-            + station.nummer
-            + "</span>"
+        "<h2>"
+        + "<span class='nummer'>"
+        + station.nummer
+        + "</span>"
+        + escapeHtml(station.titel)
+        + "</h2>";
+
+        if (station.beschreibung) {
+
+            html +=
+            "<p>"
             + escapeHtml(
-                station.titel
+                station.beschreibung
             )
-            + "</h2>";
-
-
-        if (
-            station.beschreibung
-        ) {
-
-            html +=
-                "<p>"
-                + escapeHtml(
-                    station.beschreibung
-                )
-                + "</p>";
+            + "</p>";
         }
 
-
-        if (
-            station.besonderheit
-        ) {
+        if (station.besonderheit) {
 
             html +=
-                "<p>⭐ "
-                + escapeHtml(
-                    station.besonderheit
-                )
-                + "</p>";
+            "<p>⭐ "
+            + escapeHtml(
+                station.besonderheit
+            )
+            + "</p>";
         }
 
-
-        if (
-            station.fototipp
-        ) {
+        if (station.fototipp) {
 
             html +=
-                "<p class='fototipp'>📷 "
-                + escapeHtml(
-                    station.fototipp
-                )
-                + "</p>";
+            "<p class='fototipp'>📷 "
+            + escapeHtml(
+                station.fototipp
+            )
+            + "</p>";
         }
 
-
-        if (
-            station.aufenthalt_minuten
-        ) {
+        if (station.aufenthalt_minuten) {
 
             html +=
-                "<p>⏱ Aufenthalt: "
-                + station.aufenthalt_minuten
-                + " Minuten</p>";
+            "<p>⏱ Aufenthalt: "
+            + station.aufenthalt_minuten
+            + " Minuten</p>";
         }
 
-
-        if (
-            sprechtexte[station.nummer]
-        ) {
+        if (station.sprechtext) {
 
             html +=
-                "<button "
-                + "class='sprechButton' "
-                + "onclick='sprechen("
-                + station.nummer
-                + ")'>"
-                + "🔊 Text anhören"
-                + "</button>";
+            "<button "
+            + "class='sprechButton' "
+            + "onclick='sprechen("
+            + station.nummer
+            + ")'>"
+            + "🔊 Text anhören"
+            + "</button>";
         }
 
-
-        if (
-            station.audio_url
-        ) {
+        if (station.audio_url) {
 
             html +=
-                "<p>"
-                + "<audio controls preload='none' "
-                + "style='width:100%;'>"
-                + "<source src='"
-                + escapeAttribute(
-                    station.audio_url
-                )
-                + "'>"
-                + "</audio>"
-                + "</p>";
+            "<p>"
+            + "<audio controls preload='none' "
+            + "style='width:100%;'>"
+            + "<source src='"
+            + escapeAttribute(
+                station.audio_url
+            )
+            + "'>"
+            + "</audio>"
+            + "</p>";
         }
 
-
-        div.innerHTML =
-            html;
-
+        div.innerHTML = html;
 
         div.addEventListener(
             "click",
@@ -676,7 +563,6 @@ function stationenAnzeigen() {
                     return;
                 }
 
-
                 if (
                     station.latitude == null ||
                     station.longitude == null
@@ -684,56 +570,96 @@ function stationenAnzeigen() {
                     return;
                 }
 
-
                 const lat =
-                    Number(
-                        station.latitude
-                    );
+                Number(
+                    station.latitude
+                );
 
                 const lon =
-                    Number(
-                        station.longitude
-                    );
-
+                Number(
+                    station.longitude
+                );
 
                 map.setView(
                     [lat, lon],
                     18
                 );
 
-
                 const marker =
-                    stationMarker.find(
-                        m => {
+                stationMarker.find(
+                    m => {
 
-                            const pos =
-                                m.getLatLng();
+                        const pos =
+                        m.getLatLng();
 
-                            return (
-                                Math.abs(
-                                    pos.lat - lat
-                                ) < 0.0000001 &&
-                                Math.abs(
-                                    pos.lng - lon
-                                ) < 0.0000001
-                            );
-                        }
-                    );
-
+                        return (
+                            Math.abs(
+                                pos.lat - lat
+                            ) < 0.0000001 &&
+                            Math.abs(
+                                pos.lng - lon
+                            ) < 0.0000001
+                        );
+                    }
+                );
 
                 if (marker) {
                     marker.openPopup();
                 }
-
             }
         );
 
+        container.appendChild(div);
+    });
+}
 
-        container.appendChild(
-            div
+
+/* =========================================================
+   SPRACHAUSGABE
+   ========================================================= */
+
+function sprechen(nummer) {
+
+    if (
+        !("speechSynthesis" in window)
+    ) {
+
+        alert(
+            "Die Sprachwiedergabe wird auf diesem Gerät nicht unterstützt."
         );
 
-    });
+        return;
+    }
+
+    const station =
+    stationen.find(
+        s =>
+        Number(s.nummer) ===
+        Number(nummer)
+    );
+
+    if (
+        !station ||
+        !station.sprechtext
+    ) {
+        return;
+    }
+
+    window.speechSynthesis.cancel();
+
+    const aussage =
+    new SpeechSynthesisUtterance(
+        station.sprechtext
+    );
+
+    aussage.lang = "de-DE";
+    aussage.rate = 0.88;
+    aussage.pitch = 1.0;
+    aussage.volume = 1.0;
+
+    window.speechSynthesis.speak(
+        aussage
+    );
 }
 
 
@@ -744,30 +670,28 @@ function stationenAnzeigen() {
 function testmodusAufbauen() {
 
     const select =
-        document.getElementById(
-            "stationSelect"
-        );
-
+    document.getElementById(
+        "stationSelect"
+    );
 
     select.innerHTML =
-        "<option value=''>Station auswählen …</option>";
-
+    "<option value=''>Station auswählen …</option>";
 
     stationen.forEach(
         station => {
 
             const option =
-                document.createElement(
-                    "option"
-                );
+            document.createElement(
+                "option"
+            );
 
             option.value =
-                station.id;
+            station.id;
 
             option.textContent =
-                station.nummer
-                + ". "
-                + station.titel;
+            station.nummer
+            + ". "
+            + station.titel;
 
             select.appendChild(
                 option
@@ -780,10 +704,9 @@ function testmodusAufbauen() {
 function testmodusUmschalten() {
 
     const element =
-        document.getElementById(
-            "testmodus"
-        );
-
+    document.getElementById(
+        "testmodus"
+    );
 
     if (
         element.style.display === "none" ||
@@ -791,12 +714,12 @@ function testmodusUmschalten() {
     ) {
 
         element.style.display =
-            "block";
+        "block";
 
     } else {
 
         element.style.display =
-            "none";
+        "none";
     }
 }
 
@@ -804,28 +727,24 @@ function testmodusUmschalten() {
 function testStation() {
 
     const id =
-        document.getElementById(
-            "stationSelect"
-        ).value;
-
+    document.getElementById(
+        "stationSelect"
+    ).value;
 
     if (!id) {
         return;
     }
 
-
     const station =
-        stationen.find(
-            s =>
-                String(s.id) ===
-                String(id)
-        );
-
+    stationen.find(
+        s =>
+        String(s.id) ===
+        String(id)
+    );
 
     if (!station) {
         return;
     }
-
 
     if (
         station.latitude == null ||
@@ -834,42 +753,38 @@ function testStation() {
         return;
     }
 
-
     const lat =
-        Number(
-            station.latitude
-        );
+    Number(
+        station.latitude
+    );
 
     const lon =
-        Number(
-            station.longitude
-        );
-
+    Number(
+        station.longitude
+    );
 
     map.setView(
         [lat, lon],
         18
     );
 
-
     const marker =
-        stationMarker.find(
-            m => {
+    stationMarker.find(
+        m => {
 
-                const pos =
-                    m.getLatLng();
+            const pos =
+            m.getLatLng();
 
-                return (
-                    Math.abs(
-                        pos.lat - lat
-                    ) < 0.0000001 &&
-                    Math.abs(
-                        pos.lng - lon
-                    ) < 0.0000001
-                );
-            }
-        );
-
+            return (
+                Math.abs(
+                    pos.lat - lat
+                ) < 0.0000001 &&
+                Math.abs(
+                    pos.lng - lon
+                ) < 0.0000001
+            );
+        }
+    );
 
     if (marker) {
         marker.openPopup();
@@ -894,7 +809,6 @@ function tourStarten() {
         return;
     }
 
-
     if (
         gpsWatch !== null
     ) {
@@ -904,7 +818,6 @@ function tourStarten() {
         );
 
         gpsWatch = null;
-
 
         if (userMarker) {
 
@@ -918,75 +831,70 @@ function tourStarten() {
         return;
     }
 
-
     gpsWatch =
-        navigator.geolocation.watchPosition(
+    navigator.geolocation.watchPosition(
 
-            position => {
+        position => {
 
-                const lat =
-                    position.coords.latitude;
+            const lat =
+            position.coords.latitude;
 
-                const lon =
-                    position.coords.longitude;
+            const lon =
+            position.coords.longitude;
 
+            if (!userMarker) {
 
-                if (!userMarker) {
+                const icon =
+                L.divIcon({
+                    className: "",
+                    html:
+                    "<div class='user-marker'></div>",
+                    iconSize:
+                    [18, 18],
+                    iconAnchor:
+                    [9, 9]
+                });
 
-                    const icon =
-                        L.divIcon({
-                            className: "",
-                            html:
-                                "<div class='user-marker'></div>",
-                            iconSize:
-                                [18, 18],
-                            iconAnchor:
-                                [9, 9]
-                        });
+                userMarker =
+                L.marker(
+                    [lat, lon],
+                    {
+                        icon: icon
+                    }
+                ).addTo(map);
 
+            } else {
 
-                    userMarker =
-                        L.marker(
-                            [lat, lon],
-                            {
-                                icon: icon
-                            }
-                        )
-                        .addTo(map);
-
-                } else {
-
-                    userMarker.setLatLng(
-                        [lat, lon]
-                    );
-                }
-
-
-                stationNaechste(
-                    lat,
-                    lon
+                userMarker.setLatLng(
+                    [lat, lon]
                 );
-
-            },
-
-            error => {
-
-                console.error(
-                    "GPS:",
-                    error
-                );
-
-                alert(
-                    "GPS konnte nicht ermittelt werden."
-                );
-            },
-
-            {
-                enableHighAccuracy: true,
-                maximumAge: 5000,
-                timeout: 15000
             }
-        );
+
+            stationNaechste(
+                lat,
+                lon
+            );
+
+        },
+
+        error => {
+
+            console.error(
+                "GPS:",
+                error
+            );
+
+            alert(
+                "GPS konnte nicht ermittelt werden."
+            );
+        },
+
+        {
+            enableHighAccuracy: true,
+            maximumAge: 5000,
+            timeout: 15000
+        }
+    );
 }
 
 
@@ -1002,8 +910,7 @@ function stationNaechste(
     let naechste = null;
 
     let minDistanz =
-        Infinity;
-
+    Infinity;
 
     stationen.forEach(
         station => {
@@ -1015,33 +922,30 @@ function stationNaechste(
                 return;
             }
 
-
             const distanz =
-                entfernung(
-                    userLat,
-                    userLon,
-                    Number(
-                        station.latitude
-                    ),
-                    Number(
-                        station.longitude
-                    )
-                );
-
+            entfernung(
+                userLat,
+                userLon,
+                Number(
+                    station.latitude
+                ),
+                Number(
+                    station.longitude
+                )
+            );
 
             if (
                 distanz < minDistanz
             ) {
 
                 minDistanz =
-                    distanz;
+                distanz;
 
                 naechste =
-                    station;
+                station;
             }
         }
     );
-
 
     if (
         naechste &&
@@ -1075,50 +979,45 @@ function entfernung(
 ) {
 
     const R =
-        6371000;
-
+    6371000;
 
     const dLat =
-        (lat2 - lat1)
-        * Math.PI / 180;
-
+    (lat2 - lat1)
+    * Math.PI / 180;
 
     const dLon =
-        (lon2 - lon1)
-        * Math.PI / 180;
-
+    (lon2 - lon1)
+    * Math.PI / 180;
 
     const a =
-        Math.sin(
-            dLat / 2
-        ) *
-        Math.sin(
-            dLat / 2
-        )
-        +
-        Math.cos(
-            lat1 * Math.PI / 180
-        )
-        *
-        Math.cos(
-            lat2 * Math.PI / 180
-        )
-        *
-        Math.sin(
-            dLon / 2
-        ) *
-        Math.sin(
-            dLon / 2
-        );
-
+    Math.sin(
+        dLat / 2
+    ) *
+    Math.sin(
+        dLat / 2
+    )
+    +
+    Math.cos(
+        lat1 * Math.PI / 180
+    )
+    *
+    Math.cos(
+        lat2 * Math.PI / 180
+    )
+    *
+    Math.sin(
+        dLon / 2
+    ) *
+    Math.sin(
+        dLon / 2
+    );
 
     const c =
-        2 *
-        Math.atan2(
-            Math.sqrt(a),
-            Math.sqrt(1 - a)
-        );
-
+    2 *
+    Math.atan2(
+        Math.sqrt(a),
+        Math.sqrt(1 - a)
+    );
 
     return R * c;
 }
@@ -1135,26 +1034,26 @@ function escapeHtml(text) {
     }
 
     return String(text)
-        .replaceAll(
-            "&",
-            "&amp;"
-        )
-        .replaceAll(
-            "<",
-            "&lt;"
-        )
-        .replaceAll(
-            ">",
-            "&gt;"
-        )
-        .replaceAll(
-            '"',
-            "&quot;"
-        )
-        .replaceAll(
-            "'",
-            "&#039;"
-        );
+    .replaceAll(
+        "&",
+        "&amp;"
+    )
+    .replaceAll(
+        "<",
+        "&lt;"
+    )
+    .replaceAll(
+        ">",
+        "&gt;"
+    )
+    .replaceAll(
+        '"',
+        "&quot;"
+    )
+    .replaceAll(
+        "'",
+        "&#039;"
+    );
 }
 
 
