@@ -3,156 +3,148 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
 <title>Salzburg Foto-Tour</title>
 
 <link rel="stylesheet"
 href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
 
 <style>
-* {
-    box-sizing: border-box;
+*{box-sizing:border-box}
+
+body{
+margin:0;
+font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+background:#f5f5f5;
+color:#222
 }
 
-body {
-    margin: 0;
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-    background: #f5f5f5;
-    color: #222;
+header{
+background:#111;
+color:white;
+padding:22px 15px 18px;
+text-align:center
 }
 
-header {
-    background: #111;
-    color: white;
-    padding: 22px 15px 18px;
-    text-align: center;
+header h1{
+margin:0;
+font-size:28px
 }
 
-header h1 {
-    margin: 0;
-    font-size: 28px;
+header p{
+margin:6px 0 0;
+font-size:17px
 }
 
-header p {
-    margin: 6px 0 0;
-    font-size: 17px;
+#status{
+background:white;
+padding:12px 18px;
+font-size:16px;
+border-bottom:1px solid #ddd
 }
 
-#status {
-    background: white;
-    padding: 12px 18px;
-    font-size: 16px;
-    border-bottom: 1px solid #ddd;
+.ok{color:#168a16}
+.fehler{color:#c62828}
+
+#map{
+width:100%;
+height:610px;
+background:#ddd
 }
 
-.ok {
-    color: #168a16;
+.controls{
+background:white;
+padding:15px;
+display:flex;
+gap:10px;
+flex-wrap:wrap
 }
 
-.fehler {
-    color: #c62828;
+button{
+border:none;
+border-radius:12px;
+padding:14px 20px;
+font-size:17px;
+background:#222;
+color:white;
+cursor:pointer
 }
 
-#map {
-    width: 100%;
-    height: 610px;
-    background: #ddd;
+button:active{
+transform:scale(.98)
 }
 
-.controls {
-    background: white;
-    padding: 15px;
-    display: flex;
-    gap: 10px;
-    flex-wrap: wrap;
+.sprechButton{
+background:#1976d2;
+width:100%;
+margin-top:12px
 }
 
-button {
-    border: none;
-    border-radius: 12px;
-    padding: 14px 20px;
-    font-size: 17px;
-    background: #222;
-    color: white;
-    cursor: pointer;
+#testmodus{
+display:none;
+background:white;
+padding:15px
 }
 
-button:active {
-    transform: scale(0.98);
+#stationSelect{
+width:100%;
+padding:12px;
+font-size:17px;
+border-radius:10px;
+border:1px solid #aaa
 }
 
-.sprechButton {
-    background: #1976d2;
-    width: 100%;
-    margin-top: 12px;
+#stationen{
+padding:15px
 }
 
-#testmodus {
-    display: none;
-    background: white;
-    padding: 15px;
+.station{
+background:white;
+border-radius:18px;
+padding:18px;
+margin-bottom:15px;
+box-shadow:0 2px 10px rgba(0,0,0,.08)
 }
 
-#stationSelect {
-    width: 100%;
-    padding: 12px;
-    font-size: 17px;
-    border-radius: 10px;
-    border: 1px solid #aaa;
+.station h2{
+margin:0 0 10px;
+font-size:23px
 }
 
-#stationen {
-    padding: 15px;
+.nummer{
+display:inline-flex;
+width:34px;
+height:34px;
+border-radius:50%;
+background:#222;
+color:white;
+align-items:center;
+justify-content:center;
+margin-right:8px;
+font-size:17px;
+vertical-align:middle
 }
 
-.station {
-    background: white;
-    border-radius: 18px;
-    padding: 18px;
-    margin-bottom: 15px;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+.station p{
+font-size:17px;
+line-height:1.45;
+margin:8px 0
 }
 
-.station h2 {
-    margin: 0 0 10px;
-    font-size: 23px;
+.fototipp{
+margin-top:10px
 }
 
-.nummer {
-    display: inline-flex;
-    width: 34px;
-    height: 34px;
-    border-radius: 50%;
-    background: #222;
-    color: white;
-    align-items: center;
-    justify-content: center;
-    margin-right: 8px;
-    font-size: 17px;
-    vertical-align: middle;
+.leaflet-popup-content{
+font-size:16px
 }
 
-.station p {
-    font-size: 17px;
-    line-height: 1.45;
-    margin: 8px 0;
-}
-
-.fototipp {
-    margin-top: 10px;
-}
-
-.leaflet-popup-content {
-    font-size: 16px;
-}
-
-.user-marker {
-    width: 18px;
-    height: 18px;
-    background: #1976d2;
-    border: 3px solid white;
-    border-radius: 50%;
-    box-shadow: 0 0 0 2px #1976d2;
+.user-marker{
+width:18px;
+height:18px;
+background:#1976d2;
+border:3px solid white;
+border-radius:50%;
+box-shadow:0 0 0 2px #1976d2
 }
 </style>
 </head>
@@ -200,8 +192,8 @@ const SUPABASE_KEY =
 
 const supabaseClient =
 supabase.createClient(
-    SUPABASE_URL,
-    SUPABASE_KEY
+SUPABASE_URL,
+SUPABASE_KEY
 );
 
 
@@ -211,17 +203,16 @@ supabase.createClient(
 
 const map =
 L.map("map").setView(
-    [47.7985, 13.0435],
-    15
+[47.7985,13.0435],
+15
 );
 
 L.tileLayer(
-    "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
-    {
-        maxZoom: 19,
-        attribution:
-        "&copy; OpenStreetMap-Mitwirkende"
-    }
+"https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+{
+maxZoom:19,
+attribution:"&copy; OpenStreetMap-Mitwirkende"
+}
 ).addTo(map);
 
 
@@ -229,26 +220,26 @@ L.tileLayer(
    VARIABLEN
    ========================================================= */
 
-let stationen = [];
-let stationMarker = [];
-let routeLayer = null;
-let userMarker = null;
-let gpsWatch = null;
+let stationen=[];
+let stationMarker=[];
+let routeLayer=null;
+let userMarker=null;
+let gpsWatch=null;
 
 
 /* =========================================================
    STATUS
    ========================================================= */
 
-function status(text, fehler = false) {
+function status(text,fehler=false){
 
-    const element =
-    document.getElementById("status");
+const element=
+document.getElementById("status");
 
-    element.innerHTML = text;
+element.innerHTML=text;
 
-    element.className =
-    fehler ? "fehler" : "ok";
+element.className=
+fehler ? "fehler" : "ok";
 }
 
 
@@ -256,91 +247,91 @@ function status(text, fehler = false) {
    GPX LADEN
    ========================================================= */
 
-async function routeLaden() {
+async function routeLaden(){
 
-    try {
+try{
 
-        const response =
-        await fetch(
-            "Salzburg.gpx",
-            {
-                cache: "no-cache"
-            }
-        );
+const response=
+await fetch(
+"Salzburg.gpx",
+{cache:"no-cache"}
+);
 
-        if (!response.ok) {
-            throw new Error(
-                "Salzburg.gpx konnte nicht geladen werden."
-            );
-        }
+if(!response.ok){
 
-        const gpxText =
-        await response.text();
+throw new Error(
+"Salzburg.gpx konnte nicht geladen werden."
+);
+}
 
-        const parser =
-        new DOMParser();
+const gpxText=
+await response.text();
 
-        const xml =
-        parser.parseFromString(
-            gpxText,
-            "application/xml"
-        );
+const parser=
+new DOMParser();
 
-        const trackpunkte =
-        Array.from(
-            xml.querySelectorAll("trkpt")
-        );
+const xml=
+parser.parseFromString(
+gpxText,
+"application/xml"
+);
 
-        if (trackpunkte.length === 0) {
-            throw new Error(
-                "Keine GPX-Trackpunkte gefunden."
-            );
-        }
+const trackpunkte=
+Array.from(
+xml.querySelectorAll("trkpt")
+);
 
-        const koordinaten =
-        trackpunkte.map(punkt => {
+if(trackpunkte.length===0){
 
-            const lat =
-            parseFloat(
-                punkt.getAttribute("lat")
-            );
+throw new Error(
+"Keine GPX-Trackpunkte gefunden."
+);
+}
 
-            const lon =
-            parseFloat(
-                punkt.getAttribute("lon")
-            );
+const koordinaten=
+trackpunkte.map(punkt=>{
 
-            return [lat, lon];
-        });
+const lat=
+parseFloat(
+punkt.getAttribute("lat")
+);
 
-        routeLayer =
-        L.polyline(
-            koordinaten,
-            {
-                weight: 5,
-                opacity: 0.85
-            }
-        ).addTo(map);
+const lon=
+parseFloat(
+punkt.getAttribute("lon")
+);
 
-        map.fitBounds(
-            routeLayer.getBounds(),
-            {
-                padding: [25, 25]
-            }
-        );
+return [lat,lon];
+});
 
-    } catch (error) {
+routeLayer=
+L.polyline(
+koordinaten,
+{
+weight:5,
+opacity:.85
+}
+).addTo(map);
 
-        console.error(
-            "GPX-Fehler:",
-            error
-        );
+map.fitBounds(
+routeLayer.getBounds(),
+{
+padding:[25,25]
+}
+);
 
-        status(
-            "🟢 Supabase verbunden · ❌ Salzburg.gpx konnte nicht geladen werden",
-            true
-        );
-    }
+}catch(error){
+
+console.error(
+"GPX-Fehler:",
+error
+);
+
+status(
+"🟢 Supabase verbunden · ❌ Salzburg.gpx konnte nicht geladen werden",
+true
+);
+}
 }
 
 
@@ -348,56 +339,53 @@ async function routeLaden() {
    STATIONEN LADEN
    ========================================================= */
 
-async function stationenLaden() {
+async function stationenLaden(){
 
-    try {
+try{
 
-        const {
-            data,
-            error
-        } =
-        await supabaseClient
-        .from("stationen")
-        .select("*")
-        .eq("aktiv", true)
-        .gte("nummer", 1)
-        .lte("nummer", 14)
-        .order(
-            "nummer",
-            {
-                ascending: true
-            }
-        );
+const{
+data,
+error
+}=
+await supabaseClient
+.from("stationen")
+.select("*")
+.eq("aktiv",true)
+.gte("nummer",1)
+.lte("nummer",14)
+.order(
+"nummer",
+{ascending:true}
+);
 
-        if (error) {
-            throw error;
-        }
+if(error){
+throw error;
+}
 
-        stationen =
-        data || [];
+stationen=data||[];
 
-        status(
-            "🟢 Verbindung zur Datenbank hergestellt · Supabase: OK · Tabelle: stationen · Stationen: "
-            + stationen.length
-        );
+status(
+"🟢 Verbindung zur Datenbank hergestellt · Supabase: OK · Tabelle: stationen · Stationen: "
++stationen.length
+);
 
-        stationenAufKarte();
-        stationenAnzeigen();
-        testmodusAufbauen();
+stationenAufKarte();
+stationenAnzeigen();
+testmodusAufbauen();
 
-    } catch (error) {
+}catch(error){
 
-        console.error(
-            "Supabase-Fehler:",
-            error
-        );
+console.error(
+"Supabase-Fehler:",
+error
+);
 
-        status(
-            "🔴 Fehler bei der Verbindung zur Datenbank: "
-            + error.message,
-            true
-        );
-    }
+status(
+"🔴 Fehler bei der Verbindung zur Datenbank: "
++error.message,
+true
+);
+}
 }
 
 
@@ -405,54 +393,54 @@ async function stationenLaden() {
    STATIONEN AUF KARTE
    ========================================================= */
 
-function stationenAufKarte() {
+function stationenAufKarte(){
 
-    stationMarker.forEach(
-        marker =>
-        map.removeLayer(marker)
-    );
+stationMarker.forEach(
+marker=>map.removeLayer(marker)
+);
 
-    stationMarker = [];
+stationMarker=[];
 
-    stationen.forEach(station => {
+stationen.forEach(station=>{
 
-        if (
-            station.latitude == null ||
-            station.longitude == null
-        ) {
-            return;
-        }
+if(
+station.latitude==null||
+station.longitude==null
+){
+return;
+}
 
-        const lat =
-        Number(station.latitude);
+const lat=
+Number(station.latitude);
 
-        const lon =
-        Number(station.longitude);
+const lon=
+Number(station.longitude);
 
-        const marker =
-        L.marker(
-            [lat, lon]
-        ).addTo(map);
+const marker=
+L.marker(
+[lat,lon]
+).addTo(map);
 
-        let popup =
-        "<strong>"
-        + station.nummer
-        + ". "
-        + escapeHtml(station.titel)
-        + "</strong>";
+let popup=
+"<strong>"
++station.nummer
++". "
++escapeHtml(station.titel)
++"</strong>";
 
-        if (station.aufenthalt_minuten) {
+if(station.aufenthalt_minuten){
 
-            popup +=
-            "<br>⏱ "
-            + station.aufenthalt_minuten
-            + " Minuten";
-        }
+popup+=
+"<br>⏱ "
++station.aufenthalt_minuten
++" Minuten";
+}
 
-        marker.bindPopup(popup);
+marker.bindPopup(popup);
 
-        stationMarker.push(marker);
-    });
+stationMarker.push(marker);
+
+});
 }
 
 
@@ -460,206 +448,207 @@ function stationenAufKarte() {
    STATIONEN ANZEIGEN
    ========================================================= */
 
-function stationenAnzeigen() {
+function stationenAnzeigen(){
 
-    const container =
-    document.getElementById("stationen");
+const container=
+document.getElementById("stationen");
 
-    container.innerHTML = "";
+container.innerHTML="";
 
-    stationen.forEach(station => {
+stationen.forEach(station=>{
 
-        const div =
-        document.createElement("div");
+const div=
+document.createElement("div");
 
-        div.className = "station";
+div.className="station";
 
-        let html = "";
+let html="";
 
-        html +=
-        "<h2>"
-        + "<span class='nummer'>"
-        + station.nummer
-        + "</span>"
-        + escapeHtml(station.titel)
-        + "</h2>";
+html+=
+"<h2>"
++"<span class='nummer'>"
++station.nummer
++"</span>"
++escapeHtml(station.titel)
++"</h2>";
 
-        if (station.beschreibung) {
+if(station.beschreibung){
 
-            html +=
-            "<p>"
-            + escapeHtml(
-                station.beschreibung
-            )
-            + "</p>";
-        }
+html+=
+"<p>"
++escapeHtml(
+station.beschreibung
+)
++"</p>";
+}
 
-        if (station.besonderheit) {
+if(station.besonderheit){
 
-            html +=
-            "<p>⭐ "
-            + escapeHtml(
-                station.besonderheit
-            )
-            + "</p>";
-        }
+html+=
+"<p>⭐ "
++escapeHtml(
+station.besonderheit
+)
++"</p>";
+}
 
-        if (station.fototipp) {
+if(station.fototipp){
 
-            html +=
-            "<p class='fototipp'>📷 "
-            + escapeHtml(
-                station.fototipp
-            )
-            + "</p>";
-        }
+html+=
+"<p class='fototipp'>📷 "
++escapeHtml(
+station.fototipp
+)
++"</p>";
+}
 
-        if (station.aufenthalt_minuten) {
+if(station.aufenthalt_minuten){
 
-            html +=
-            "<p>⏱ Aufenthalt: "
-            + station.aufenthalt_minuten
-            + " Minuten</p>";
-        }
+html+=
+"<p>⏱ Aufenthalt: "
++station.aufenthalt_minuten
++" Minuten</p>";
+}
 
-        if (station.sprechtext) {
 
-            html +=
-            "<button "
-            + "class='sprechButton' "
-            + "onclick='sprechen("
-            + station.nummer
-            + ")'>"
-            + "🔊 Text anhören"
-            + "</button>";
-        }
+/* Sprechbutton für jede Station */
 
-        if (station.audio_url) {
+if(station.sprechtext){
 
-            html +=
-            "<p>"
-            + "<audio controls preload='none' "
-            + "style='width:100%;'>"
-            + "<source src='"
-            + escapeAttribute(
-                station.audio_url
-            )
-            + "'>"
-            + "</audio>"
-            + "</p>";
-        }
+html+=
+"<button "
++"class='sprechButton' "
++"onclick='sprechen("
++station.nummer
++")'>"
++"🔊 Text anhören"
++"</button>";
+}
 
-        div.innerHTML = html;
+if(station.audio_url){
 
-        div.addEventListener(
-            "click",
-            event => {
+html+=
+"<p>"
++"<audio controls preload='none' "
++"style='width:100%;'>"
++"<source src='"
++escapeAttribute(
+station.audio_url
+)
++"'>"
++"</audio>"
++"</p>";
+}
 
-                if (
-                    event.target.closest(
-                        "button, audio"
-                    )
-                ) {
-                    return;
-                }
+div.innerHTML=html;
 
-                if (
-                    station.latitude == null ||
-                    station.longitude == null
-                ) {
-                    return;
-                }
+div.addEventListener(
+"click",
+event=>{
 
-                const lat =
-                Number(
-                    station.latitude
-                );
+if(
+event.target.closest(
+"button,audio"
+)
+){
+return;
+}
 
-                const lon =
-                Number(
-                    station.longitude
-                );
+if(
+station.latitude==null||
+station.longitude==null
+){
+return;
+}
 
-                map.setView(
-                    [lat, lon],
-                    18
-                );
+const lat=
+Number(station.latitude);
 
-                const marker =
-                stationMarker.find(
-                    m => {
+const lon=
+Number(station.longitude);
 
-                        const pos =
-                        m.getLatLng();
+map.setView(
+[lat,lon],
+18
+);
 
-                        return (
-                            Math.abs(
-                                pos.lat - lat
-                            ) < 0.0000001 &&
-                            Math.abs(
-                                pos.lng - lon
-                            ) < 0.0000001
-                        );
-                    }
-                );
+const marker=
+stationMarker.find(
+m=>{
 
-                if (marker) {
-                    marker.openPopup();
-                }
-            }
-        );
+const pos=
+m.getLatLng();
 
-        container.appendChild(div);
-    });
+return(
+Math.abs(
+pos.lat-lat
+)<0.0000001&&
+Math.abs(
+pos.lng-lon
+)<0.0000001
+);
+}
+);
+
+if(marker){
+marker.openPopup();
+}
+
+}
+);
+
+container.appendChild(div);
+
+});
 }
 
 
 /* =========================================================
-   SPRACHAUSGABE
+   SPRACHAUSGABE AUS SUPABASE
    ========================================================= */
 
-function sprechen(nummer) {
+function sprechen(nummer){
 
-    if (
-        !("speechSynthesis" in window)
-    ) {
+if(
+!("speechSynthesis" in window)
+){
 
-        alert(
-            "Die Sprachwiedergabe wird auf diesem Gerät nicht unterstützt."
-        );
+alert(
+"Die Sprachwiedergabe wird auf diesem Gerät nicht unterstützt."
+);
 
-        return;
-    }
+return;
+}
 
-    const station =
-    stationen.find(
-        s =>
-        Number(s.nummer) ===
-        Number(nummer)
-    );
+const station=
+stationen.find(
+s=>
+Number(s.nummer)===
+Number(nummer)
+);
 
-    if (
-        !station ||
-        !station.sprechtext
-    ) {
-        return;
-    }
+if(
+!station||
+!station.sprechtext
+){
+return;
+}
 
-    window.speechSynthesis.cancel();
+window.speechSynthesis.cancel();
 
-    const aussage =
-    new SpeechSynthesisUtterance(
-        station.sprechtext
-    );
+const aussage=
+new SpeechSynthesisUtterance(
+station.sprechtext
+);
 
-    aussage.lang = "de-DE";
-    aussage.rate = 0.88;
-    aussage.pitch = 1.0;
-    aussage.volume = 1.0;
+aussage.lang="de-DE";
+aussage.rate=.88;
+aussage.pitch=1.0;
+aussage.volume=1.0;
 
-    window.speechSynthesis.speak(
-        aussage
-    );
+window.speechSynthesis.speak(
+aussage
+);
 }
 
 
@@ -667,128 +656,124 @@ function sprechen(nummer) {
    TESTMODUS
    ========================================================= */
 
-function testmodusAufbauen() {
+function testmodusAufbauen(){
 
-    const select =
-    document.getElementById(
-        "stationSelect"
-    );
+const select=
+document.getElementById(
+"stationSelect"
+);
 
-    select.innerHTML =
-    "<option value=''>Station auswählen …</option>";
+select.innerHTML=
+"<option value=''>Station auswählen …</option>";
 
-    stationen.forEach(
-        station => {
+stationen.forEach(
+station=>{
 
-            const option =
-            document.createElement(
-                "option"
-            );
+const option=
+document.createElement(
+"option"
+);
 
-            option.value =
-            station.id;
+option.value=
+station.id;
 
-            option.textContent =
-            station.nummer
-            + ". "
-            + station.titel;
+option.textContent=
+station.nummer
++". "
++station.titel;
 
-            select.appendChild(
-                option
-            );
-        }
-    );
+select.appendChild(
+option
+);
+}
+);
 }
 
 
-function testmodusUmschalten() {
+function testmodusUmschalten(){
 
-    const element =
-    document.getElementById(
-        "testmodus"
-    );
+const element=
+document.getElementById(
+"testmodus"
+);
 
-    if (
-        element.style.display === "none" ||
-        element.style.display === ""
-    ) {
+if(
+element.style.display==="none"||
+element.style.display===""
+){
 
-        element.style.display =
-        "block";
+element.style.display=
+"block";
 
-    } else {
+}else{
 
-        element.style.display =
-        "none";
-    }
+element.style.display=
+"none";
+}
 }
 
 
-function testStation() {
+function testStation(){
 
-    const id =
-    document.getElementById(
-        "stationSelect"
-    ).value;
+const id=
+document.getElementById(
+"stationSelect"
+).value;
 
-    if (!id) {
-        return;
-    }
+if(!id){
+return;
+}
 
-    const station =
-    stationen.find(
-        s =>
-        String(s.id) ===
-        String(id)
-    );
+const station=
+stationen.find(
+s=>
+String(s.id)===
+String(id)
+);
 
-    if (!station) {
-        return;
-    }
+if(!station){
+return;
+}
 
-    if (
-        station.latitude == null ||
-        station.longitude == null
-    ) {
-        return;
-    }
+if(
+station.latitude==null||
+station.longitude==null
+){
+return;
+}
 
-    const lat =
-    Number(
-        station.latitude
-    );
+const lat=
+Number(station.latitude);
 
-    const lon =
-    Number(
-        station.longitude
-    );
+const lon=
+Number(station.longitude);
 
-    map.setView(
-        [lat, lon],
-        18
-    );
+map.setView(
+[lat,lon],
+18
+);
 
-    const marker =
-    stationMarker.find(
-        m => {
+const marker=
+stationMarker.find(
+m=>{
 
-            const pos =
-            m.getLatLng();
+const pos=
+m.getLatLng();
 
-            return (
-                Math.abs(
-                    pos.lat - lat
-                ) < 0.0000001 &&
-                Math.abs(
-                    pos.lng - lon
-                ) < 0.0000001
-            );
-        }
-    );
+return(
+Math.abs(
+pos.lat-lat
+)<0.0000001&&
+Math.abs(
+pos.lng-lon
+)<0.0000001
+);
+}
+);
 
-    if (marker) {
-        marker.openPopup();
-    }
+if(marker){
+marker.openPopup();
+}
 }
 
 
@@ -796,105 +781,97 @@ function testStation() {
    GPS
    ========================================================= */
 
-function tourStarten() {
+function tourStarten(){
 
-    if (
-        !navigator.geolocation
-    ) {
+if(!navigator.geolocation){
 
-        alert(
-            "GPS wird von diesem Gerät nicht unterstützt."
-        );
+alert(
+"GPS wird von diesem Gerät nicht unterstützt."
+);
 
-        return;
-    }
+return;
+}
 
-    if (
-        gpsWatch !== null
-    ) {
+if(gpsWatch!==null){
 
-        navigator.geolocation.clearWatch(
-            gpsWatch
-        );
+navigator.geolocation.clearWatch(
+gpsWatch
+);
 
-        gpsWatch = null;
+gpsWatch=null;
 
-        if (userMarker) {
+if(userMarker){
 
-            map.removeLayer(
-                userMarker
-            );
+map.removeLayer(
+userMarker
+);
 
-            userMarker = null;
-        }
+userMarker=null;
+}
 
-        return;
-    }
+return;
+}
 
-    gpsWatch =
-    navigator.geolocation.watchPosition(
+gpsWatch=
+navigator.geolocation.watchPosition(
 
-        position => {
+position=>{
 
-            const lat =
-            position.coords.latitude;
+const lat=
+position.coords.latitude;
 
-            const lon =
-            position.coords.longitude;
+const lon=
+position.coords.longitude;
 
-            if (!userMarker) {
+if(!userMarker){
 
-                const icon =
-                L.divIcon({
-                    className: "",
-                    html:
-                    "<div class='user-marker'></div>",
-                    iconSize:
-                    [18, 18],
-                    iconAnchor:
-                    [9, 9]
-                });
+const icon=
+L.divIcon({
+className:"",
+html:
+"<div class='user-marker'></div>",
+iconSize:[18,18],
+iconAnchor:[9,9]
+});
 
-                userMarker =
-                L.marker(
-                    [lat, lon],
-                    {
-                        icon: icon
-                    }
-                ).addTo(map);
+userMarker=
+L.marker(
+[lat,lon],
+{icon:icon}
+).addTo(map);
 
-            } else {
+}else{
 
-                userMarker.setLatLng(
-                    [lat, lon]
-                );
-            }
+userMarker.setLatLng(
+[lat,lon]
+);
+}
 
-            stationNaechste(
-                lat,
-                lon
-            );
+stationNaechste(
+lat,
+lon
+);
 
-        },
+},
 
-        error => {
+error=>{
 
-            console.error(
-                "GPS:",
-                error
-            );
+console.error(
+"GPS:",
+error
+);
 
-            alert(
-                "GPS konnte nicht ermittelt werden."
-            );
-        },
+alert(
+"GPS konnte nicht ermittelt werden."
+);
+},
 
-        {
-            enableHighAccuracy: true,
-            maximumAge: 5000,
-            timeout: 15000
-        }
-    );
+{
+enableHighAccuracy:true,
+maximumAge:5000,
+timeout:15000
+}
+);
 }
 
 
@@ -903,67 +880,59 @@ function tourStarten() {
    ========================================================= */
 
 function stationNaechste(
-    userLat,
-    userLon
-) {
+userLat,
+userLon
+){
 
-    let naechste = null;
+let naechste=null;
+let minDistanz=Infinity;
 
-    let minDistanz =
-    Infinity;
+stationen.forEach(
+station=>{
 
-    stationen.forEach(
-        station => {
+if(
+station.latitude==null||
+station.longitude==null
+){
+return;
+}
 
-            if (
-                station.latitude == null ||
-                station.longitude == null
-            ) {
-                return;
-            }
+const distanz=
+entfernung(
+userLat,
+userLon,
+Number(station.latitude),
+Number(station.longitude)
+);
 
-            const distanz =
-            entfernung(
-                userLat,
-                userLon,
-                Number(
-                    station.latitude
-                ),
-                Number(
-                    station.longitude
-                )
-            );
+if(
+distanz<minDistanz
+){
 
-            if (
-                distanz < minDistanz
-            ) {
+minDistanz=
+distanz;
 
-                minDistanz =
-                distanz;
+naechste=
+station;
+}
+}
+);
 
-                naechste =
-                station;
-            }
-        }
-    );
+if(
+naechste&&
+minDistanz<100
+){
 
-    if (
-        naechste &&
-        minDistanz < 100
-    ) {
-
-        status(
-            "📍 Du bist bei Station "
-            + naechste.nummer
-            + " · "
-            + naechste.titel
-            + " · "
-            + Math.round(
-                minDistanz
-            )
-            + " m entfernt"
-        );
-    }
+status(
+"📍 Du bist bei Station "
++naechste.nummer
++" · "
++naechste.titel
++" · "
++Math.round(minDistanz)
++" m entfernt"
+);
+}
 }
 
 
@@ -972,54 +941,42 @@ function stationNaechste(
    ========================================================= */
 
 function entfernung(
-    lat1,
-    lon1,
-    lat2,
-    lon2
-) {
+lat1,
+lon1,
+lat2,
+lon2
+){
 
-    const R =
-    6371000;
+const R=6371000;
 
-    const dLat =
-    (lat2 - lat1)
-    * Math.PI / 180;
+const dLat=
+(lat2-lat1)
+*Math.PI/180;
 
-    const dLon =
-    (lon2 - lon1)
-    * Math.PI / 180;
+const dLon=
+(lon2-lon1)
+*Math.PI/180;
 
-    const a =
-    Math.sin(
-        dLat / 2
-    ) *
-    Math.sin(
-        dLat / 2
-    )
-    +
-    Math.cos(
-        lat1 * Math.PI / 180
-    )
-    *
-    Math.cos(
-        lat2 * Math.PI / 180
-    )
-    *
-    Math.sin(
-        dLon / 2
-    ) *
-    Math.sin(
-        dLon / 2
-    );
+const a=
+Math.sin(dLat/2)*
+Math.sin(dLat/2)
++
+Math.cos(
+lat1*Math.PI/180
+)*
+Math.cos(
+lat2*Math.PI/180
+)*
+Math.sin(dLon/2)*
+Math.sin(dLon/2);
 
-    const c =
-    2 *
-    Math.atan2(
-        Math.sqrt(a),
-        Math.sqrt(1 - a)
-    );
+const c=
+2*Math.atan2(
+Math.sqrt(a),
+Math.sqrt(1-a)
+);
 
-    return R * c;
+return R*c;
 }
 
 
@@ -1027,39 +984,24 @@ function entfernung(
    SICHERHEIT
    ========================================================= */
 
-function escapeHtml(text) {
+function escapeHtml(text){
 
-    if (text == null) {
-        return "";
-    }
+if(text==null){
+return "";
+}
 
-    return String(text)
-    .replaceAll(
-        "&",
-        "&amp;"
-    )
-    .replaceAll(
-        "<",
-        "&lt;"
-    )
-    .replaceAll(
-        ">",
-        "&gt;"
-    )
-    .replaceAll(
-        '"',
-        "&quot;"
-    )
-    .replaceAll(
-        "'",
-        "&#039;"
-    );
+return String(text)
+.replaceAll("&","&amp;")
+.replaceAll("<","&lt;")
+.replaceAll(">","&gt;")
+.replaceAll('"',"&quot;")
+.replaceAll("'","&#039;");
 }
 
 
-function escapeAttribute(text) {
+function escapeAttribute(text){
 
-    return escapeHtml(text);
+return escapeHtml(text);
 }
 
 
