@@ -1,1 +1,85 @@
 
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Salzburg Foto-Tour</title>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+            padding: 30px;
+            text-align: center;
+            background: #f5f5f5;
+        }
+
+        .box {
+            max-width: 500px;
+            margin: 40px auto;
+            padding: 30px;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        h1 {
+            margin-bottom: 30px;
+        }
+
+        #status {
+            font-size: 18px;
+            margin: 20px 0;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="box">
+    <h1>📷 Salzburg Foto-Tour</h1>
+
+    <div id="status">
+        🔄 Verbindung zur Datenbank wird geprüft …
+    </div>
+
+    <div id="stationen"></div>
+</div>
+
+<script>
+    const SUPABASE_URL = "https://nlwspalttrhebrpwqcpb.supabase.co";
+
+    const SUPABASE_PUBLISHABLE_KEY =
+        "sb_publishable_eRAkjZZrjGM3PJybVtDUGw_vYgwd5As";
+
+    const supabaseClient = window.supabase.createClient(
+        SUPABASE_URL,
+        SUPABASE_PUBLISHABLE_KEY
+    );
+
+    async function testen() {
+
+        const status = document.getElementById("status");
+        const stationen = document.getElementById("stationen");
+
+        const { count, error } = await supabaseClient
+            .from("stationen")
+            .select("id", { count: "exact", head: true });
+
+        if (error) {
+            status.innerHTML = "🔴 Datenbankfehler";
+            stationen.innerHTML = error.message;
+            return;
+        }
+
+        status.innerHTML = "🟢 Verbindung zur Datenbank hergestellt";
+        stationen.innerHTML = "📍 Stationen: " + count;
+    }
+
+    testen();
+</script>
+
+</body>
+</html>
