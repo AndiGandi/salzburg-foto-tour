@@ -81,6 +81,12 @@ button:active {
     transform: scale(0.98);
 }
 
+.sprechButton {
+    background: #1976d2;
+    width: 100%;
+    margin-top: 12px;
+}
+
 #testmodus {
     display: none;
     background: white;
@@ -209,7 +215,6 @@ const map =
         15
     );
 
-
 L.tileLayer(
     "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
     {
@@ -229,6 +234,62 @@ let stationMarker = [];
 let routeLayer = null;
 let userMarker = null;
 let gpsWatch = null;
+
+
+/* =========================================================
+   SPRECHTEXT STATION 1
+   ========================================================= */
+
+const sprechtexte = {
+
+    1:
+    "Willkommen zur Salzburg Foto-Tour. " +
+    "Wir starten hier beim Neutor, dem historischen Durchgang durch den Mönchsberg. " +
+    "Das Neutor wird auch Sigmundstor genannt und verbindet die Salzburger Altstadt mit dem Stadtteil Riedenburg. " +
+    "Der Tunnel wurde im 18. Jahrhundert durch den Felsen des Mönchsbergs gebaut und war damals eine bedeutende technische Leistung. " +
+    "Schaut euch hier einmal die Verbindung von Straße, Fels und historischem Stadtraum an. " +
+    "Für ein Foto lohnt sich besonders der Blick entlang des Tunnels. " +
+    "Versucht dabei, die Felswand als natürlichen Rahmen zu verwenden. " +
+    "Von hier beginnt unser Weg hinein in die Salzburger Altstadt."
+};
+
+
+/* =========================================================
+   SPRECHEN
+   ========================================================= */
+
+function sprechen(nummer) {
+
+    if (!("speechSynthesis" in window)) {
+
+        alert(
+            "Die Sprachwiedergabe wird auf diesem Gerät nicht unterstützt."
+        );
+
+        return;
+    }
+
+    window.speechSynthesis.cancel();
+
+    const text =
+        sprechtexte[nummer];
+
+    if (!text) {
+        return;
+    }
+
+    const aussage =
+        new SpeechSynthesisUtterance(text);
+
+    aussage.lang = "de-DE";
+    aussage.rate = 0.9;
+    aussage.pitch = 1.0;
+    aussage.volume = 1.0;
+
+    window.speechSynthesis.speak(
+        aussage
+    );
+}
 
 
 /* =========================================================
@@ -328,13 +389,6 @@ async function routeLaden() {
             }
         );
 
-
-        console.log(
-            "GPX geladen:",
-            koordinaten.length,
-            "Trackpunkte"
-        );
-
     } catch (error) {
 
         console.error(
@@ -351,7 +405,7 @@ async function routeLaden() {
 
 
 /* =========================================================
-   STATIONEN AUS SUPABASE
+   STATIONEN LADEN
    ========================================================= */
 
 async function stationenLaden() {
@@ -485,7 +539,7 @@ function stationenAufKarte() {
 
 
 /* =========================================================
-   STATIONEN ALS KARTEN
+   STATIONEN ANZEIGEN
    ========================================================= */
 
 function stationenAnzeigen() {
@@ -574,6 +628,21 @@ function stationenAnzeigen() {
 
 
         if (
+            sprechtexte[station.nummer]
+        ) {
+
+            html +=
+                "<button "
+                + "class='sprechButton' "
+                + "onclick='sprechen("
+                + station.nummer
+                + ")'>"
+                + "🔊 Text anhören"
+                + "</button>";
+        }
+
+
+        if (
             station.audio_url
         ) {
 
@@ -597,7 +666,16 @@ function stationenAnzeigen() {
 
         div.addEventListener(
             "click",
-            () => {
+            event => {
+
+                if (
+                    event.target.closest(
+                        "button, audio"
+                    )
+                ) {
+                    return;
+                }
+
 
                 if (
                     station.latitude == null ||
@@ -800,7 +878,7 @@ function testStation() {
 
 
 /* =========================================================
-   TOUR STARTEN / GPS
+   GPS
    ========================================================= */
 
 function tourStarten() {
