@@ -1,126 +1,164 @@
 <!DOCTYPE html>
 <html lang="de">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Salzburg Foto-Tour</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+    <title>Salzburg Foto-Tour</title>
 
-<style>
-body {
-    margin: 0;
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-    background: #f5f5f5;
-    color: #222;
-}
+    <!-- Leaflet -->
+    <link
+        rel="stylesheet"
+        href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+    />
 
-header {
-    background: #111;
-    color: white;
-    padding: 16px;
-    text-align: center;
-}
+    <style>
+        * {
+            box-sizing: border-box;
+        }
 
-header h1 {
-    margin: 0 0 5px;
-    font-size: 24px;
-}
+        body {
+            margin: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+            background: #f5f5f5;
+            color: #222;
+        }
 
-header p {
-    margin: 0;
-    font-size: 14px;
-}
+        header {
+            background: #111;
+            color: white;
+            padding: 22px 15px 18px;
+            text-align: center;
+        }
 
-#status {
-    background: white;
-    padding: 10px 15px;
-    border-bottom: 1px solid #ddd;
-    font-size: 14px;
-}
+        header h1 {
+            margin: 0;
+            font-size: 28px;
+        }
 
-#map {
-    width: 100%;
-    height: 45vh;
-    min-height: 350px;
-}
+        header p {
+            margin: 6px 0 0;
+            font-size: 17px;
+        }
 
-.controls {
-    background: white;
-    padding: 12px;
-    display: flex;
-    gap: 8px;
-    flex-wrap: wrap;
-}
+        #status {
+            background: white;
+            padding: 12px 18px;
+            font-size: 16px;
+            border-bottom: 1px solid #ddd;
+        }
 
-button,
-select {
-    border: 0;
-    border-radius: 10px;
-    padding: 12px 15px;
-    font-size: 15px;
-}
+        .ok {
+            color: #168a16;
+        }
 
-button {
-    background: #222;
-    color: white;
-}
+        .fehler {
+            color: #c62828;
+        }
 
-select {
-    background: #eee;
-    color: #222;
-    min-width: 220px;
-}
+        #map {
+            width: 100%;
+            height: 610px;
+            background: #ddd;
+        }
 
-#testInfo {
-    display: none;
-    background: #fff8d8;
-    padding: 10px 15px;
-    font-size: 14px;
-}
+        .controls {
+            background: white;
+            padding: 15px;
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
 
-.stations {
-    padding: 12px;
-}
+        button {
+            border: none;
+            border-radius: 12px;
+            padding: 14px 20px;
+            font-size: 17px;
+            background: #222;
+            color: white;
+            cursor: pointer;
+        }
 
-.station {
-    background: white;
-    border-radius: 14px;
-    padding: 15px;
-    margin-bottom: 12px;
-    box-shadow: 0 2px 7px rgba(0,0,0,.08);
-}
+        button:active {
+            transform: scale(0.98);
+        }
 
-.station h2 {
-    margin: 0 0 8px;
-    font-size: 19px;
-}
+        #testmodus {
+            display: none;
+            background: white;
+            padding: 15px;
+        }
 
-.station p {
-    margin: 6px 0;
-    line-height: 1.45;
-}
+        #stationSelect {
+            width: 100%;
+            padding: 12px;
+            font-size: 17px;
+            border-radius: 10px;
+            border: 1px solid #aaa;
+        }
 
-.station-number {
-    display: inline-block;
-    width: 28px;
-    height: 28px;
-    line-height: 28px;
-    text-align: center;
-    border-radius: 50%;
-    background: #222;
-    color: white;
-    margin-right: 7px;
-    font-size: 14px;
-}
-</style>
+        #stationen {
+            padding: 15px;
+        }
+
+        .station {
+            background: white;
+            border-radius: 18px;
+            padding: 18px;
+            margin-bottom: 15px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+        }
+
+        .station h2 {
+            margin: 0 0 10px;
+            font-size: 23px;
+        }
+
+        .nummer {
+            display: inline-flex;
+            width: 34px;
+            height: 34px;
+            border-radius: 50%;
+            background: #222;
+            color: white;
+            align-items: center;
+            justify-content: center;
+            margin-right: 8px;
+            font-size: 17px;
+            vertical-align: middle;
+        }
+
+        .station p {
+            font-size: 17px;
+            line-height: 1.45;
+            margin: 8px 0;
+        }
+
+        .fototipp {
+            margin-top: 10px;
+        }
+
+        .leaflet-popup-content {
+            font-size: 16px;
+        }
+
+        .user-marker {
+            width: 18px;
+            height: 18px;
+            background: #1976d2;
+            border: 3px solid white;
+            border-radius: 50%;
+            box-shadow: 0 0 0 2px #1976d2;
+        }
+    </style>
 </head>
 
 <body>
 
 <header>
     <h1>📷 Salzburg Foto-Tour</h1>
-    <p>Freitag · Altstadt &amp; Mönchsberg</p>
+    <p>Freitag · Altstadt & Mönchsberg</p>
 </header>
 
 <div id="status">
@@ -132,607 +170,871 @@ select {
 <div class="controls">
     <button onclick="tourStarten()">📍 Tour starten</button>
     <button onclick="testmodusUmschalten()">🧪 Testmodus</button>
+</div>
 
-    <select id="testStation"
-            onchange="testStationWaehlen()"
-            style="display:none">
-        <option value="">Teststation auswählen</option>
+<div id="testmodus">
+    <select id="stationSelect" onchange="testStation()">
+        <option value="">Station auswählen …</option>
     </select>
 </div>
 
-<div id="testInfo"></div>
-
-<div class="stations" id="stations">
-    <p>Stationen werden geladen …</p>
-</div>
+<div id="stationen"></div>
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <script>
 
-const SUPABASE_URL =
-    "https://nlwspalttrhebrpwqcpb.supabase.co";
+    /* =========================================================
+       SUPABASE
+       ========================================================= */
 
-const SUPABASE_KEY =
-    "sb_publishable_eRAkjZZrjGM3PJybVtDUGw_vYgwd5As";
+    const SUPABASE_URL =
+        "https://nlwspalttrhebrpwqcpb.supabase.co";
 
-const supabaseClient =
-    window.supabase.createClient(
-        SUPABASE_URL,
-        SUPABASE_KEY
+    const SUPABASE_KEY =
+        "sb_publishable_eRAkjZZrjGM3PJybVtDUGw_vYgwd5As";
+
+    const supabaseClient =
+        supabase.createClient(
+            SUPABASE_URL,
+            SUPABASE_KEY
+        );
+
+
+    /* =========================================================
+       KARTE
+       ========================================================= */
+
+    const map = L.map("map").setView(
+        [47.7985, 13.0435],
+        15
     );
 
-let stationen = [];
-let userMarker = null;
-let gpsWatch = null;
-let testmodus = false;
-let routeLayer = null;
+
+    /* OpenStreetMap-Karte */
+
+    L.tileLayer(
+        "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+        {
+            maxZoom: 19,
+            attribution: "&copy; OpenStreetMap-Mitwirkende"
+        }
+    ).addTo(map);
 
 
-/* ---------------------------------------------------------
-   KARTE
---------------------------------------------------------- */
+    /* =========================================================
+       VARIABLEN
+       ========================================================= */
 
-const map = L.map("map");
+    let stationen = [];
 
-L.tileLayer(
-    "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
-    {
-        maxZoom: 19,
-        attribution: "&copy; OpenStreetMap"
+    let stationMarker = [];
+
+    let routeLayer = null;
+
+    let userMarker = null;
+
+    let gpsWatch = null;
+
+
+    /* =========================================================
+       STATUS
+       ========================================================= */
+
+    function status(text, fehler = false) {
+
+        const element =
+            document.getElementById("status");
+
+        element.innerHTML = text;
+
+        element.className =
+            fehler ? "fehler" : "ok";
     }
-).addTo(map);
 
 
-/* ---------------------------------------------------------
-   GPX DIREKT AUS Salzburg.gpx
---------------------------------------------------------- */
+    /* =========================================================
+       GPX LADEN
+       ========================================================= */
 
-async function routeLaden() {
+    async function routeLaden() {
 
-    try {
+        try {
 
-        const response =
-            await fetch("Salzburg.gpx");
+            const response =
+                await fetch("Salzburg.gpx", {
+                    cache: "no-cache"
+                });
 
-        if (!response.ok) {
-            throw new Error(
-                "Salzburg.gpx konnte nicht geladen werden."
-            );
-        }
+            if (!response.ok) {
 
-        const gpxText =
-            await response.text();
+                throw new Error(
+                    "Salzburg.gpx konnte nicht geladen werden."
+                );
+            }
 
-        const parser =
-            new DOMParser();
+            const gpxText =
+                await response.text();
 
-        const gpx =
-            parser.parseFromString(
-                gpxText,
-                "application/xml"
-            );
+            const parser =
+                new DOMParser();
 
-        const trackpunkte =
-            [...gpx.querySelectorAll("trkpt")]
-            .map(p => [
-                Number(p.getAttribute("lat")),
-                Number(p.getAttribute("lon"))
-            ]);
+            const xml =
+                parser.parseFromString(
+                    gpxText,
+                    "application/xml"
+                );
 
-        if (trackpunkte.length === 0) {
-            throw new Error(
-                "Keine GPX-Trackpunkte gefunden."
-            );
-        }
+            const trackpunkte =
+                Array.from(
+                    xml.querySelectorAll("trkpt")
+                );
 
-        routeLayer =
-            L.polyline(
-                trackpunkte,
+            if (trackpunkte.length === 0) {
+
+                throw new Error(
+                    "Keine GPX-Trackpunkte gefunden."
+                );
+            }
+
+            const koordinaten =
+                trackpunkte.map(punkt => {
+
+                    const lat =
+                        parseFloat(
+                            punkt.getAttribute("lat")
+                        );
+
+                    const lon =
+                        parseFloat(
+                            punkt.getAttribute("lon")
+                        );
+
+                    return [lat, lon];
+
+                });
+
+            /*
+             * Die GPX-Koordinaten werden unverändert
+             * übernommen.
+             */
+
+            routeLayer =
+                L.polyline(
+                    koordinaten,
+                    {
+                        weight: 5,
+                        opacity: 0.85
+                    }
+                ).addTo(map);
+
+
+            /*
+             * Karte exakt auf die originale GPX-Route
+             * ausrichten.
+             */
+
+            map.fitBounds(
+                routeLayer.getBounds(),
                 {
-                    weight: 5,
-                    opacity: 0.85
+                    padding: [25, 25]
                 }
-            ).addTo(map);
-
-        map.fitBounds(
-            routeLayer.getBounds(),
-            {
-                padding: [20, 20]
-            }
-        );
-
-    } catch (error) {
-
-        console.error(error);
-
-        document.getElementById(
-            "status"
-        ).innerHTML =
-            "🔴 GPX-Route konnte nicht geladen werden";
-    }
-}
+            );
 
 
-/* ---------------------------------------------------------
-   STATIONEN AUS SUPABASE
-   KOORDINATEN WERDEN NICHT VERÄNDERT
---------------------------------------------------------- */
+            console.log(
+                "GPX geladen:",
+                koordinaten.length,
+                "Trackpunkte"
+            );
 
-async function stationenLaden() {
+        } catch (error) {
 
-    const status =
-        document.getElementById("status");
+            console.error(
+                "GPX-Fehler:",
+                error
+            );
 
-    const { data, error } =
-        await supabaseClient
-            .from("stationen")
-            .select("*")
-            .eq("aktiv", true)
-            .order("nummer", {
-                ascending: true
-            });
-
-    if (error) {
-
-        console.error(error);
-
-        status.innerHTML =
-            "🔴 Fehler beim Laden der Stationen";
-
-        return;
-    }
-
-    stationen = data || [];
-
-    status.innerHTML =
-        "🟢 Verbindung zur Datenbank hergestellt · " +
-        "Supabase: OK · Tabelle: stationen · " +
-        "Stationen: " +
-        stationen.length;
-
-    stationenAnzeigen();
-    markerSetzen();
-    testStationenFuellen();
-}
-
-
-/* ---------------------------------------------------------
-   STATIONEN MARKER
---------------------------------------------------------- */
-
-function markerSetzen() {
-
-    stationen.forEach(station => {
-
-        if (
-            station.latitude === null ||
-            station.longitude === null
-        ) {
-            return;
+            status(
+                "🟢 Supabase verbunden · ❌ Salzburg.gpx konnte nicht geladen werden",
+                true
+            );
         }
+    }
 
-        const stationMarker =
-            L.marker([
-                Number(station.latitude),
-                Number(station.longitude)
-            ]).addTo(map);
 
-        stationMarker.bindPopup(
-            "<strong>" +
-            escapeHTML(station.nummer) +
-            ". " +
-            escapeHTML(station.titel) +
-            "</strong>"
+    /* =========================================================
+       STATIONEN AUS SUPABASE
+       ========================================================= */
+
+    async function stationenLaden() {
+
+        try {
+
+            const {
+                data,
+                error
+            } = await supabaseClient
+                .from("stationen")
+                .select("*")
+                .eq("aktiv", true)
+                .order("nummer", {
+                    ascending: true
+                });
+
+
+            if (error) {
+
+                throw error;
+            }
+
+
+            stationen = data || [];
+
+
+            status(
+                "🟢 Verbindung zur Datenbank hergestellt · Supabase: OK · Tabelle: stationen · Stationen: "
+                + stationen.length
+            );
+
+
+            stationenAufKarte();
+
+            stationenAnzeigen();
+
+            testmodusAufbauen();
+
+
+        } catch (error) {
+
+            console.error(
+                "Supabase-Fehler:",
+                error
+            );
+
+            status(
+                "🔴 Fehler bei der Verbindung zur Datenbank: "
+                + error.message,
+                true
+            );
+        }
+    }
+
+
+    /* =========================================================
+       STATIONEN AUF KARTE
+       ========================================================= */
+
+    function stationenAufKarte() {
+
+        /*
+         * Vorhandene Marker entfernen
+         */
+
+        stationMarker.forEach(
+            marker => map.removeLayer(marker)
         );
 
-        station.marker = stationMarker;
-    });
-}
+        stationMarker = [];
 
 
-/* ---------------------------------------------------------
-   STATIONEN LISTE
---------------------------------------------------------- */
-
-function stationenAnzeigen() {
-
-    const container =
-        document.getElementById("stations");
-
-    container.innerHTML = "";
-
-    stationen.forEach(station => {
-
-        const div =
-            document.createElement("div");
-
-        div.className = "station";
-
-        div.innerHTML = `
-            <h2>
-                <span class="station-number">
-                    ${escapeHTML(station.nummer)}
-                </span>
-                ${escapeHTML(station.titel)}
-            </h2>
-
-            ${
-                station.beschreibung
-                ? `<p>${escapeHTML(station.beschreibung)}</p>`
-                : ""
-            }
-
-            ${
-                station.besonderheit
-                ? `<p>⭐ ${escapeHTML(station.besonderheit)}</p>`
-                : ""
-            }
-
-            ${
-                station.fototipp
-                ? `<p>📷 ${escapeHTML(station.fototipp)}</p>`
-                : ""
-            }
-        `;
-
-        div.onclick = () => {
+        stationen.forEach(station => {
 
             if (
-                station.latitude === null ||
-                station.longitude === null
+                station.latitude == null ||
+                station.longitude == null
             ) {
                 return;
             }
 
-            map.setView(
-                [
-                    Number(station.latitude),
-                    Number(station.longitude)
-                ],
-                18
-            );
 
-            if (station.marker) {
-                station.marker.openPopup();
+            /*
+             * WICHTIG:
+             * Die Koordinaten werden NICHT verändert.
+             */
+
+            const lat =
+                Number(station.latitude);
+
+            const lon =
+                Number(station.longitude);
+
+
+            const marker =
+                L.marker([lat, lon])
+                    .addTo(map);
+
+
+            let popup =
+                "<strong>"
+                + station.nummer
+                + ". "
+                + escapeHtml(station.titel)
+                + "</strong>";
+
+
+            if (station.aufenthalt_minuten) {
+
+                popup +=
+                    "<br>⏱ "
+                    + station.aufenthalt_minuten
+                    + " Minuten";
             }
-        };
-
-        container.appendChild(div);
-    });
-}
 
 
-/* ---------------------------------------------------------
-   TOUR STARTEN
---------------------------------------------------------- */
+            marker.bindPopup(popup);
 
-function tourStarten() {
 
-    if (!navigator.geolocation) {
+            stationMarker.push(marker);
 
-        alert(
-            "GPS wird auf diesem Gerät nicht unterstützt."
-        );
-
-        return;
+        });
     }
 
-    if (gpsWatch !== null) {
 
-        navigator.geolocation.clearWatch(
-            gpsWatch
-        );
-    }
+    /* =========================================================
+       STATIONEN ALS KARTEN
+       ========================================================= */
 
-    gpsWatch =
-        navigator.geolocation.watchPosition(
-            position => {
+    function stationenAnzeigen() {
 
-                const lat =
-                    position.coords.latitude;
+        const container =
+            document.getElementById("stationen");
 
-                const lon =
-                    position.coords.longitude;
+        container.innerHTML = "";
 
-                eigenePosition(
-                    lat,
-                    lon
-                );
-            },
-            error => {
 
-                console.error(error);
+        stationen.forEach(station => {
 
-                alert(
-                    "GPS konnte nicht verwendet werden."
-                );
-            },
-            {
-                enableHighAccuracy: true,
-                maximumAge: 5000,
-                timeout: 10000
+            const div =
+                document.createElement("div");
+
+            div.className = "station";
+
+
+            let html = "";
+
+            html +=
+                "<h2>"
+                + "<span class='nummer'>"
+                + station.nummer
+                + "</span>"
+                + escapeHtml(station.titel)
+                + "</h2>";
+
+
+            if (station.beschreibung) {
+
+                html +=
+                    "<p>"
+                    + escapeHtml(
+                        station.beschreibung
+                    )
+                    + "</p>";
             }
-        );
-}
 
 
-/* ---------------------------------------------------------
-   EIGENE POSITION
---------------------------------------------------------- */
+            if (station.besonderheit) {
 
-function eigenePosition(lat, lon) {
+                html +=
+                    "<p>⭐ "
+                    + escapeHtml(
+                        station.besonderheit
+                    )
+                    + "</p>";
+            }
 
-    if (!userMarker) {
 
-        userMarker =
-            L.circleMarker(
-                [lat, lon],
-                {
-                    radius: 9,
-                    weight: 3
+            if (station.fototipp) {
+
+                html +=
+                    "<p class='fototipp'>📷 "
+                    + escapeHtml(
+                        station.fototipp
+                    )
+                    + "</p>";
+            }
+
+
+            if (station.aufenthalt_minuten) {
+
+                html +=
+                    "<p>⏱ Aufenthalt: "
+                    + station.aufenthalt_minuten
+                    + " Minuten</p>";
+            }
+
+
+            if (station.audio_url) {
+
+                html +=
+                    "<p>"
+                    + "<audio controls preload='none' "
+                    + "style='width:100%;'>"
+                    + "<source src='"
+                    + escapeAttribute(
+                        station.audio_url
+                    )
+                    + "'>"
+                    + "</audio>"
+                    + "</p>";
+            }
+
+
+            div.innerHTML = html;
+
+
+            /*
+             * Klick auf Station:
+             * Karte springt zum exakt gespeicherten Punkt.
+             */
+
+            div.addEventListener(
+                "click",
+                () => {
+
+                    if (
+                        station.latitude == null ||
+                        station.longitude == null
+                    ) {
+                        return;
+                    }
+
+
+                    const lat =
+                        Number(station.latitude);
+
+                    const lon =
+                        Number(station.longitude);
+
+
+                    map.setView(
+                        [lat, lon],
+                        18
+                    );
+
+
+                    const marker =
+                        stationMarker.find(
+                            m => {
+
+                                const pos =
+                                    m.getLatLng();
+
+                                return (
+                                    Math.abs(
+                                        pos.lat - lat
+                                    ) < 0.0000001 &&
+                                    Math.abs(
+                                        pos.lng - lon
+                                    ) < 0.0000001
+                                );
+                            }
+                        );
+
+
+                    if (marker) {
+
+                        marker.openPopup();
+                    }
+
                 }
-            ).addTo(map);
-
-        userMarker.bindPopup(
-            "📍 Dein Standort"
-        );
-
-    } else {
-
-        userMarker.setLatLng([
-            lat,
-            lon
-        ]);
-    }
-
-    const naechste =
-        naechsteStation(
-            lat,
-            lon
-        );
-
-    if (naechste) {
-
-        const distanz =
-            entfernung(
-                lat,
-                lon,
-                Number(naechste.latitude),
-                Number(naechste.longitude)
             );
 
-        document.getElementById(
-            "status"
-        ).innerHTML =
-            "📍 GPS aktiv · Nächste Station: " +
-            naechste.nummer +
-            ". " +
-            escapeHTML(naechste.titel) +
-            " · " +
-            Math.round(distanz) +
-            " m";
+
+            container.appendChild(div);
+
+        });
     }
-}
 
 
-/* ---------------------------------------------------------
-   TESTMODUS
---------------------------------------------------------- */
+    /* =========================================================
+       TESTMODUS
+       ========================================================= */
 
-function testmodusUmschalten() {
+    function testmodusAufbauen() {
 
-    testmodus = !testmodus;
-
-    const select =
-        document.getElementById(
-            "testStation"
-        );
-
-    const info =
-        document.getElementById(
-            "testInfo"
-        );
-
-    if (testmodus) {
-
-        select.style.display = "block";
-        info.style.display = "block";
-
-        info.innerHTML =
-            "🧪 Testmodus aktiv";
-
-    } else {
-
-        select.style.display = "none";
-        info.style.display = "none";
-    }
-}
-
-
-function testStationenFuellen() {
-
-    const select =
-        document.getElementById(
-            "testStation"
-        );
-
-    select.innerHTML =
-        '<option value="">Teststation auswählen</option>';
-
-    stationen.forEach(station => {
-
-        const option =
-            document.createElement("option");
-
-        option.value =
-            station.nummer;
-
-        option.textContent =
-            station.nummer +
-            ". " +
-            station.titel;
-
-        select.appendChild(option);
-    });
-}
-
-
-function testStationWaehlen() {
-
-    const nummer =
-        Number(
+        const select =
             document.getElementById(
-                "testStation"
-            ).value
-        );
+                "stationSelect"
+            );
 
-    if (!nummer) {
-        return;
+
+        select.innerHTML =
+            "<option value=''>Station auswählen …</option>";
+
+
+        stationen.forEach(station => {
+
+            const option =
+                document.createElement("option");
+
+            option.value =
+                station.id;
+
+            option.textContent =
+                station.nummer
+                + ". "
+                + station.titel;
+
+            select.appendChild(option);
+
+        });
     }
 
-    const station =
-        stationen.find(
-            s => Number(s.nummer) === nummer
-        );
 
-    if (!station) {
-        return;
-    }
+    function testmodusUmschalten() {
 
-    eigenePosition(
-        Number(station.latitude),
-        Number(station.longitude)
-    );
+        const element =
+            document.getElementById(
+                "testmodus"
+            );
 
-    map.setView(
-        [
-            Number(station.latitude),
-            Number(station.longitude)
-        ],
-        18
-    );
-
-    document.getElementById(
-        "testInfo"
-    ).innerHTML =
-        "🧪 Testposition: Station " +
-        station.nummer +
-        " · " +
-        escapeHTML(station.titel);
-}
-
-
-/* ---------------------------------------------------------
-   NÄCHSTE STATION
---------------------------------------------------------- */
-
-function naechsteStation(lat, lon) {
-
-    let beste = null;
-    let besteDistanz = Infinity;
-
-    stationen.forEach(station => {
 
         if (
-            station.latitude === null ||
-            station.longitude === null
+            element.style.display === "none" ||
+            element.style.display === ""
+        ) {
+
+            element.style.display = "block";
+
+        } else {
+
+            element.style.display = "none";
+        }
+    }
+
+
+    function testStation() {
+
+        const id =
+            document.getElementById(
+                "stationSelect"
+            ).value;
+
+
+        if (!id) {
+            return;
+        }
+
+
+        const station =
+            stationen.find(
+                s => String(s.id) === String(id)
+            );
+
+
+        if (!station) {
+            return;
+        }
+
+
+        if (
+            station.latitude == null ||
+            station.longitude == null
         ) {
             return;
         }
 
-        const d =
-            entfernung(
-                lat,
-                lon,
-                Number(station.latitude),
-                Number(station.longitude)
-            );
 
-        if (d < besteDistanz) {
+        const lat =
+            Number(station.latitude);
 
-            besteDistanz = d;
-            beste = station;
-        }
-    });
-
-    return beste;
-}
+        const lon =
+            Number(station.longitude);
 
 
-/* ---------------------------------------------------------
-   DISTANZ
---------------------------------------------------------- */
-
-function entfernung(
-    lat1,
-    lon1,
-    lat2,
-    lon2
-) {
-
-    const R = 6371000;
-
-    const p1 =
-        lat1 * Math.PI / 180;
-
-    const p2 =
-        lat2 * Math.PI / 180;
-
-    const dLat =
-        (lat2 - lat1) *
-        Math.PI / 180;
-
-    const dLon =
-        (lon2 - lon1) *
-        Math.PI / 180;
-
-    const a =
-        Math.sin(dLat / 2) ** 2 +
-        Math.cos(p1) *
-        Math.cos(p2) *
-        Math.sin(dLon / 2) ** 2;
-
-    const c =
-        2 *
-        Math.atan2(
-            Math.sqrt(a),
-            Math.sqrt(1 - a)
+        map.setView(
+            [lat, lon],
+            18
         );
 
-    return R * c;
-}
+
+        const marker =
+            stationMarker.find(
+                m => {
+
+                    const pos =
+                        m.getLatLng();
+
+                    return (
+                        Math.abs(
+                            pos.lat - lat
+                        ) < 0.0000001 &&
+                        Math.abs(
+                            pos.lng - lon
+                        ) < 0.0000001
+                    );
+                }
+            );
 
 
-/* ---------------------------------------------------------
-   HTML SICHERN
---------------------------------------------------------- */
+        if (marker) {
 
-function escapeHTML(value) {
-
-    if (
-        value === null ||
-        value === undefined
-    ) {
-        return "";
+            marker.openPopup();
+        }
     }
 
-    return String(value)
-        .replaceAll("&", "&amp;")
-        .replaceAll("<", "&lt;")
-        .replaceAll(">", "&gt;")
-        .replaceAll('"', "&quot;")
-        .replaceAll("'", "&#039;");
-}
+
+    /* =========================================================
+       TOUR STARTEN / GPS
+       ========================================================= */
+
+    function tourStarten() {
+
+        if (
+            !navigator.geolocation
+        ) {
+
+            alert(
+                "GPS wird von diesem Gerät nicht unterstützt."
+            );
+
+            return;
+        }
 
 
-/* ---------------------------------------------------------
-   START
---------------------------------------------------------- */
+        if (gpsWatch !== null) {
 
-routeLaden();
-stationenLaden();
+            navigator.geolocation.clearWatch(
+                gpsWatch
+            );
+
+            gpsWatch = null;
+
+            if (userMarker) {
+
+                map.removeLayer(
+                    userMarker
+                );
+
+                userMarker = null;
+            }
+
+            return;
+        }
+
+
+        gpsWatch =
+            navigator.geolocation.watchPosition(
+
+                position => {
+
+                    const lat =
+                        position.coords.latitude;
+
+                    const lon =
+                        position.coords.longitude;
+
+
+                    if (!userMarker) {
+
+                        const icon =
+                            L.divIcon({
+                                className: "",
+                                html:
+                                    "<div class='user-marker'></div>",
+                                iconSize: [18, 18],
+                                iconAnchor: [9, 9]
+                            });
+
+
+                        userMarker =
+                            L.marker(
+                                [lat, lon],
+                                {
+                                    icon: icon
+                                }
+                            )
+                            .addTo(map);
+
+                    } else {
+
+                        userMarker.setLatLng(
+                            [lat, lon]
+                        );
+                    }
+
+
+                    stationNaechste(
+                        lat,
+                        lon
+                    );
+
+                },
+
+                error => {
+
+                    console.error(
+                        "GPS:",
+                        error
+                    );
+
+                    alert(
+                        "GPS konnte nicht ermittelt werden."
+                    );
+                },
+
+                {
+                    enableHighAccuracy: true,
+                    maximumAge: 5000,
+                    timeout: 15000
+                }
+            );
+    }
+
+
+    /* =========================================================
+       NÄCHSTE STATION
+       ========================================================= */
+
+    function stationNaechste(
+        userLat,
+        userLon
+    ) {
+
+        let naechste = null;
+
+        let minDistanz =
+            Infinity;
+
+
+        stationen.forEach(station => {
+
+            if (
+                station.latitude == null ||
+                station.longitude == null
+            ) {
+                return;
+            }
+
+
+            const distanz =
+                entfernung(
+                    userLat,
+                    userLon,
+                    Number(station.latitude),
+                    Number(station.longitude)
+                );
+
+
+            if (
+                distanz < minDistanz
+            ) {
+
+                minDistanz =
+                    distanz;
+
+                naechste =
+                    station;
+            }
+
+        });
+
+
+        if (
+            naechste &&
+            minDistanz < 100
+        ) {
+
+            status(
+                "📍 Du bist bei Station "
+                + naechste.nummer
+                + " · "
+                + naechste.titel
+                + " · "
+                + Math.round(minDistanz)
+                + " m entfernt"
+            );
+
+        }
+
+    }
+
+
+    /* =========================================================
+       ENTFERNUNG
+       ========================================================= */
+
+    function entfernung(
+        lat1,
+        lon1,
+        lat2,
+        lon2
+    ) {
+
+        const R =
+            6371000;
+
+        const dLat =
+            (lat2 - lat1)
+            * Math.PI / 180;
+
+        const dLon =
+            (lon2 - lon1)
+            * Math.PI / 180;
+
+
+        const a =
+            Math.sin(dLat / 2) *
+            Math.sin(dLat / 2)
+            +
+            Math.cos(
+                lat1 * Math.PI / 180
+            )
+            *
+            Math.cos(
+                lat2 * Math.PI / 180
+            )
+            *
+            Math.sin(dLon / 2) *
+            Math.sin(dLon / 2);
+
+
+        const c =
+            2 * Math.atan2(
+                Math.sqrt(a),
+                Math.sqrt(1 - a)
+            );
+
+
+        return R * c;
+    }
+
+
+    /* =========================================================
+       SICHERHEIT
+       ========================================================= */
+
+    function escapeHtml(text) {
+
+        if (text == null) {
+            return "";
+        }
+
+        return String(text)
+            .replaceAll("&", "&amp;")
+            .replaceAll("<", "&lt;")
+            .replaceAll(">", "&gt;")
+            .replaceAll('"', "&quot;")
+            .replaceAll("'", "&#039;");
+    }
+
+
+    function escapeAttribute(text) {
+
+        return escapeHtml(text);
+    }
+
+
+    /* =========================================================
+       START
+       ========================================================= */
+
+    routeLaden();
+
+    stationenLaden();
 
 </script>
 
