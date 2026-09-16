@@ -5,124 +5,113 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Salzburg Foto-Tour</title>
 
-<link rel="stylesheet"
-      href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
 
 <style>
-    body {
-        margin: 0;
-        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-        background: #f5f5f5;
-        color: #222;
-    }
+body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    background: #f5f5f5;
+    color: #222;
+}
 
-    header {
-        background: #111;
-        color: white;
-        padding: 16px;
-        text-align: center;
-    }
+header {
+    background: #111;
+    color: white;
+    padding: 16px;
+    text-align: center;
+}
 
-    header h1 {
-        margin: 0 0 5px;
-        font-size: 24px;
-    }
+header h1 {
+    margin: 0 0 5px;
+    font-size: 24px;
+}
 
-    header p {
-        margin: 0;
-        font-size: 14px;
-    }
+header p {
+    margin: 0;
+    font-size: 14px;
+}
 
-    #status {
-        background: white;
-        padding: 10px 15px;
-        font-size: 14px;
-        border-bottom: 1px solid #ddd;
-    }
+#status {
+    background: white;
+    padding: 10px 15px;
+    border-bottom: 1px solid #ddd;
+    font-size: 14px;
+}
 
-    #map {
-        width: 100%;
-        height: 45vh;
-        min-height: 350px;
-    }
+#map {
+    width: 100%;
+    height: 45vh;
+    min-height: 350px;
+}
 
-    .controls {
-        padding: 12px;
-        background: white;
-        display: flex;
-        gap: 8px;
-        flex-wrap: wrap;
-    }
+.controls {
+    background: white;
+    padding: 12px;
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+}
 
-    button,
-    select {
-        border: none;
-        border-radius: 10px;
-        padding: 12px 15px;
-        font-size: 15px;
-        background: #222;
-        color: white;
-    }
+button,
+select {
+    border: 0;
+    border-radius: 10px;
+    padding: 12px 15px;
+    font-size: 15px;
+}
 
-    select {
-        background: #eee;
-        color: #222;
-        flex: 1;
-        min-width: 220px;
-    }
+button {
+    background: #222;
+    color: white;
+}
 
-    .testinfo {
-        padding: 10px 15px;
-        background: #fff8d8;
-        font-size: 14px;
-        display: none;
-    }
+select {
+    background: #eee;
+    color: #222;
+    min-width: 220px;
+}
 
-    .stations {
-        padding: 12px;
-    }
+#testInfo {
+    display: none;
+    background: #fff8d8;
+    padding: 10px 15px;
+    font-size: 14px;
+}
 
-    .station {
-        background: white;
-        border-radius: 14px;
-        padding: 15px;
-        margin-bottom: 12px;
-        box-shadow: 0 2px 7px rgba(0,0,0,.08);
-    }
+.stations {
+    padding: 12px;
+}
 
-    .station h2 {
-        margin: 0 0 8px;
-        font-size: 19px;
-    }
+.station {
+    background: white;
+    border-radius: 14px;
+    padding: 15px;
+    margin-bottom: 12px;
+    box-shadow: 0 2px 7px rgba(0,0,0,.08);
+}
 
-    .station p {
-        margin: 6px 0;
-        line-height: 1.45;
-    }
+.station h2 {
+    margin: 0 0 8px;
+    font-size: 19px;
+}
 
-    .station-number {
-        display: inline-block;
-        background: #222;
-        color: white;
-        border-radius: 50%;
-        width: 28px;
-        height: 28px;
-        line-height: 28px;
-        text-align: center;
-        margin-right: 7px;
-        font-size: 14px;
-    }
+.station p {
+    line-height: 1.45;
+}
 
-    .special {
-        font-weight: 600;
-    }
-
-    .photo {
-        margin-top: 8px;
-        padding: 8px 10px;
-        background: #f1f1f1;
-        border-radius: 8px;
-    }
+.station-number {
+    display: inline-block;
+    width: 28px;
+    height: 28px;
+    line-height: 28px;
+    text-align: center;
+    border-radius: 50%;
+    background: #222;
+    color: white;
+    margin-right: 7px;
+    font-size: 14px;
+}
 </style>
 </head>
 
@@ -133,9 +122,7 @@
     <p>Freitag · Altstadt &amp; Mönchsberg</p>
 </header>
 
-<div id="status">
-    🔄 Verbindung wird hergestellt …
-</div>
+<div id="status">🔄 Verbindung wird hergestellt …</div>
 
 <div id="map"></div>
 
@@ -143,22 +130,24 @@
     <button onclick="tourStarten()">📍 Tour starten</button>
     <button onclick="testmodusUmschalten()">🧪 Testmodus</button>
 
-    <select id="testStation" onchange="testStationWaehlen()" style="display:none">
+    <select id="testStation"
+            onchange="testStationWaehlen()"
+            style="display:none">
         <option value="">Teststation auswählen</option>
     </select>
 </div>
 
-<div id="testInfo" class="testinfo"></div>
+<div id="testInfo"></div>
 
 <div class="stations" id="stations">
     <p>Stationen werden geladen …</p>
 </div>
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <script>
+
 const SUPABASE_URL =
     "https://nlwspalttrhebrpwqcpb.supabase.co";
 
@@ -172,9 +161,14 @@ const supabaseClient =
     );
 
 let stationen = [];
-let userMarker = null;
+let marker = null;
 let gpsWatch = null;
 let testmodus = false;
+
+
+/* ---------------------------------------------------------
+   KARTE
+--------------------------------------------------------- */
 
 const map = L.map("map");
 
@@ -182,13 +176,15 @@ L.tileLayer(
     "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
     {
         maxZoom: 19,
-        attribution: '&copy; OpenStreetMap'
+        attribution: "&copy; OpenStreetMap"
     }
 ).addTo(map);
 
 
 /* ---------------------------------------------------------
-   GPX-ROUTE
+   ORIGINALER GPX-TRACK
+   Nur Darstellung – KEINE Stationskoordinaten
+   werden daraus übernommen.
 --------------------------------------------------------- */
 
 const route = [
@@ -253,13 +249,11 @@ const route = [
     [47.799853,13.041314]
 ];
 
-const routeLayer = L.polyline(
-    route,
-    {
+const routeLayer =
+    L.polyline(route, {
         weight: 5,
         opacity: 0.85
-    }
-).addTo(map);
+    }).addTo(map);
 
 map.fitBounds(routeLayer.getBounds(), {
     padding: [20,20]
@@ -267,19 +261,20 @@ map.fitBounds(routeLayer.getBounds(), {
 
 
 /* ---------------------------------------------------------
-   STATIONEN AUS SUPABASE
+   SUPABASE
 --------------------------------------------------------- */
 
 async function stationenLaden() {
 
-    const status = document.getElementById("status");
+    const status =
+        document.getElementById("status");
 
     const { data, error } =
         await supabaseClient
             .from("stationen")
             .select("*")
             .eq("aktiv", true)
-            .order("nummer");
+            .order("nummer", { ascending: true });
 
     if (error) {
 
@@ -299,33 +294,35 @@ async function stationenLaden() {
         "Stationen: " + stationen.length;
 
     stationenAnzeigen();
-    stationenMarker();
+    markerSetzen();
     testStationenFuellen();
 }
 
 
 /* ---------------------------------------------------------
-   STATIONEN MARKER
+   MARKER
+   KOORDINATEN KOMMEN AUSSCHLIESSLICH
+   AUS SUPABASE
 --------------------------------------------------------- */
 
-function stationenMarker() {
+function markerSetzen() {
 
     stationen.forEach(station => {
 
         if (
-            station.latitude == null ||
-            station.longitude == null
+            station.latitude === null ||
+            station.longitude === null
         ) {
             return;
         }
 
-        const marker =
+        const stationMarker =
             L.marker([
-                station.latitude,
-                station.longitude
+                Number(station.latitude),
+                Number(station.longitude)
             ]).addTo(map);
 
-        marker.bindPopup(
+        stationMarker.bindPopup(
             "<strong>" +
             station.nummer +
             ". " +
@@ -333,13 +330,13 @@ function stationenMarker() {
             "</strong>"
         );
 
-        station.marker = marker;
+        station.marker = stationMarker;
     });
 }
 
 
 /* ---------------------------------------------------------
-   STATIONEN LISTE
+   STATIONEN
 --------------------------------------------------------- */
 
 function stationenAnzeigen() {
@@ -372,17 +369,13 @@ function stationenAnzeigen() {
 
             ${
                 station.besonderheit
-                ? `<p class="special">
-                    ⭐ ${escapeHTML(station.besonderheit)}
-                  </p>`
+                ? `<p>⭐ ${escapeHTML(station.besonderheit)}</p>`
                 : ""
             }
 
             ${
                 station.fototipp
-                ? `<div class="photo">
-                    📷 ${escapeHTML(station.fototipp)}
-                  </div>`
+                ? `<p>📷 ${escapeHTML(station.fototipp)}</p>`
                 : ""
             }
         `;
@@ -390,21 +383,22 @@ function stationenAnzeigen() {
         div.onclick = () => {
 
             if (
-                station.latitude != null &&
-                station.longitude != null
+                station.latitude === null ||
+                station.longitude === null
             ) {
+                return;
+            }
 
-                map.setView(
-                    [
-                        station.latitude,
-                        station.longitude
-                    ],
-                    18
-                );
+            map.setView(
+                [
+                    Number(station.latitude),
+                    Number(station.longitude)
+                ],
+                18
+            );
 
-                if (station.marker) {
-                    station.marker.openPopup();
-                }
+            if (station.marker) {
+                station.marker.openPopup();
             }
         };
 
@@ -428,24 +422,11 @@ function tourStarten() {
         return;
     }
 
-    const start =
-        stationen.find(
-            s => Number(s.nummer) === 1
-        );
-
-    if (start) {
-
-        map.setView(
-            [
-                start.latitude,
-                start.longitude
-            ],
-            17
-        );
-    }
-
     if (gpsWatch !== null) {
-        navigator.geolocation.clearWatch(gpsWatch);
+
+        navigator.geolocation.clearWatch(
+            gpsWatch
+        );
     }
 
     gpsWatch =
@@ -458,15 +439,17 @@ function tourStarten() {
                 const lon =
                     position.coords.longitude;
 
-                userPositionSetzen(lat, lon);
+                eigenePosition(
+                    lat,
+                    lon
+                );
             },
             error => {
 
                 console.error(error);
 
                 alert(
-                    "GPS konnte nicht verwendet werden. " +
-                    "Bitte Standortfreigabe für diese Website aktivieren."
+                    "GPS konnte nicht verwendet werden."
                 );
             },
             {
@@ -479,14 +462,14 @@ function tourStarten() {
 
 
 /* ---------------------------------------------------------
-   BENUTZERPOSITION
+   EIGENE POSITION
 --------------------------------------------------------- */
 
-function userPositionSetzen(lat, lon) {
+function eigenePosition(lat, lon) {
 
-    if (!userMarker) {
+    if (!marker) {
 
-        userMarker =
+        marker =
             L.circleMarker(
                 [lat, lon],
                 {
@@ -495,32 +478,37 @@ function userPositionSetzen(lat, lon) {
                 }
             ).addTo(map);
 
-        userMarker.bindPopup(
+        marker.bindPopup(
             "📍 Dein Standort"
         );
 
     } else {
 
-        userMarker.setLatLng([
+        marker.setLatLng([
             lat,
             lon
         ]);
     }
 
     const naechste =
-        naechsteStation(lat, lon);
+        naechsteStation(
+            lat,
+            lon
+        );
 
     if (naechste) {
 
         const distanz =
-            entfernungMeter(
+            entfernung(
                 lat,
                 lon,
-                naechste.latitude,
-                naechste.longitude
+                Number(naechste.latitude),
+                Number(naechste.longitude)
             );
 
-        document.getElementById("status").innerHTML =
+        document.getElementById(
+            "status"
+        ).innerHTML =
             "📍 GPS aktiv · Nächste Station: " +
             naechste.nummer +
             ". " +
@@ -541,10 +529,14 @@ function testmodusUmschalten() {
     testmodus = !testmodus;
 
     const select =
-        document.getElementById("testStation");
+        document.getElementById(
+            "testStation"
+        );
 
     const info =
-        document.getElementById("testInfo");
+        document.getElementById(
+            "testInfo"
+        );
 
     if (testmodus) {
 
@@ -552,7 +544,7 @@ function testmodusUmschalten() {
         info.style.display = "block";
 
         info.innerHTML =
-            "🧪 Testmodus aktiv – eine Station auswählen.";
+            "🧪 Testmodus aktiv";
 
     } else {
 
@@ -565,7 +557,9 @@ function testmodusUmschalten() {
 function testStationenFuellen() {
 
     const select =
-        document.getElementById("testStation");
+        document.getElementById(
+            "testStation"
+        );
 
     select.innerHTML =
         '<option value="">Teststation auswählen</option>';
@@ -575,7 +569,8 @@ function testStationenFuellen() {
         const option =
             document.createElement("option");
 
-        option.value = station.nummer;
+        option.value =
+            station.nummer;
 
         option.textContent =
             station.nummer +
@@ -596,18 +591,22 @@ function testStationWaehlen() {
             ).value
         );
 
-    if (!nummer) return;
+    if (!nummer) {
+        return;
+    }
 
     const station =
         stationen.find(
             s => Number(s.nummer) === nummer
         );
 
-    if (!station) return;
+    if (!station) {
+        return;
+    }
 
-    userPositionSetzen(
-        station.latitude,
-        station.longitude
+    eigenePosition(
+        Number(station.latitude),
+        Number(station.longitude)
     );
 
     document.getElementById(
@@ -616,7 +615,7 @@ function testStationWaehlen() {
         "🧪 Testposition: Station " +
         station.nummer +
         " · " +
-        station.titel;
+        escapeHTML(station.titel);
 }
 
 
@@ -632,18 +631,18 @@ function naechsteStation(lat, lon) {
     stationen.forEach(station => {
 
         if (
-            station.latitude == null ||
-            station.longitude == null
+            station.latitude === null ||
+            station.longitude === null
         ) {
             return;
         }
 
         const d =
-            entfernungMeter(
+            entfernung(
                 lat,
                 lon,
-                station.latitude,
-                station.longitude
+                Number(station.latitude),
+                Number(station.longitude)
             );
 
         if (d < besteDistanz) {
@@ -661,7 +660,7 @@ function naechsteStation(lat, lon) {
    DISTANZ
 --------------------------------------------------------- */
 
-function entfernungMeter(
+function entfernung(
     lat1,
     lon1,
     lat2,
@@ -702,12 +701,13 @@ function entfernungMeter(
 
 
 /* ---------------------------------------------------------
-   HTML SICHER MACHEN
+   SICHERE DARSTELLUNG
 --------------------------------------------------------- */
 
 function escapeHTML(value) {
 
-    if (value == null) {
+    if (value === null ||
+        value === undefined) {
         return "";
     }
 
