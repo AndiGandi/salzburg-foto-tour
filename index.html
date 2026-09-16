@@ -191,8 +191,8 @@
         🔄 Stationen werden geladen …
     </div>
 
-    <button id="start-button" onclick="routeStarten()">
-        📍 Route starten
+    <button id="start-button" onclick="tourStarten()">
+        📍 Tour starten
     </button>
 
     <button id="test-button" onclick="testmodusUmschalten()">
@@ -256,7 +256,8 @@
             "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
             {
                 maxZoom: 19,
-                attribution: "&copy; OpenStreetMap-Mitwirkende"
+                attribution:
+                    "&copy; OpenStreetMap-Mitwirkende"
             }
         ).addTo(karte);
     }
@@ -275,6 +276,7 @@
                 station.latitude === null ||
                 station.longitude === null
             ) {
+                stationsMarker.push(null);
                 return;
             }
 
@@ -292,7 +294,8 @@
                     .addTo(karte)
                     .bindPopup(`
                         <strong>
-                            ${station.nummer}. ${station.titel}
+                            ${station.nummer}.
+                            ${station.titel}
                         </strong>
                         <br>
                         ⏱ ${station.aufenthalt_minuten ?? "-"} Minuten
@@ -382,11 +385,11 @@
                 "click",
                 () => {
 
-                    const stationIndex =
+                    const index =
                         stationsDaten.indexOf(station);
 
                     const marker =
-                        stationsMarker[stationIndex];
+                        stationsMarker[index];
 
 
                     if (marker) {
@@ -560,7 +563,9 @@
             gpsStatus.innerHTML = `
 
                 ${testmodus ? "🧪" : "📍"}
-                ${testmodus ? "Testposition" : "Deine Position"}
+                ${testmodus
+                    ? "Testposition"
+                    : "Deine Position"}
 
                 <br><br>
 
@@ -581,35 +586,78 @@
     }
 
 
-    function routeStarten() {
+    function tourStarten() {
+
+        if (
+            stationsDaten.length === 0
+        ) {
+            return;
+        }
+
+
+        const startStation =
+            stationsDaten.find(
+                station => station.nummer === 1
+            );
+
+
+        if (startStation) {
+
+            karte.setView(
+                [
+                    startStation.latitude,
+                    startStation.longitude
+                ],
+                18
+            );
+
+
+            const marker =
+                stationsMarker[
+                    stationsDaten.indexOf(
+                        startStation
+                    )
+                ];
+
+
+            if (marker) {
+                marker.openPopup();
+            }
+        }
+
+
+        const button =
+            document.getElementById(
+                "start-button"
+            );
+
+
+        button.innerHTML =
+            "📍 GPS wird gestartet …";
+
 
         if (!navigator.geolocation) {
 
-            alert(
-                "Dieses Gerät unterstützt keine Standortbestimmung."
-            );
+            button.innerHTML =
+                "📍 GPS nicht verfügbar";
 
             return;
         }
 
 
-        const button =
-            document.getElementById("start-button");
-
-        button.innerHTML =
-            "📍 GPS ist aktiv";
-
-        button.disabled = true;
-
-
         gpsWatchId =
             navigator.geolocation.watchPosition(
+
                 position => {
 
                     positionAnzeigen(
                         position.coords.latitude,
                         position.coords.longitude
                     );
+
+
+                    button.innerHTML =
+                        "📍 Tour läuft";
                 },
 
                 error => {
@@ -625,8 +673,23 @@
                     gpsStatus.className =
                         "error";
 
-                    gpsStatus.innerHTML =
-                        "🔴 Standortzugriff wurde nicht erlaubt.";
+
+                    if (error.code === 1) {
+
+                        gpsStatus.innerHTML =
+                            "🔴 Standortzugriff wurde nicht erlaubt.";
+
+                        button.innerHTML =
+                            "📍 Standort erlauben";
+
+                    } else {
+
+                        gpsStatus.innerHTML =
+                            "🔴 GPS-Position konnte nicht ermittelt werden.";
+
+                        button.innerHTML =
+                            "📍 GPS erneut versuchen";
+                    }
                 },
 
                 {
@@ -716,7 +779,8 @@
 
         const station =
             stationsDaten.find(
-                s => s.nummer === nummer
+                station =>
+                    station.nummer === nummer
             );
 
 
@@ -742,7 +806,9 @@
 
 
         const marker =
-            stationsMarker[nummer - 1];
+            stationsMarker[
+                stationsDaten.indexOf(station)
+            ];
 
 
         if (marker) {
